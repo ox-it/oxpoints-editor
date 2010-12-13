@@ -1,0 +1,30 @@
+An OxPoints editor
+==================
+
+Here's a prototypical OxPoints editor. It currently supports editing entity
+metadata, and listing entities. It doesn't yet support modifying relationships
+or any other more-complicated operations.
+
+It currently has bits hard-coded, so isn't going to deploy anywhere nicely. In
+time this will be fixed.
+
+
+How it works
+------------
+
+The application contains three models; File, Object and Relation. The latter two
+contain metadata derived from the first and are maintained automagically by
+File.save().
+
+A File instance represents an OxPoints XML file on disk. When there are pending
+changes, the user field is set to be the user owning the changes. This prevents
+anyone else from editing that file (and its associated Objects).
+
+When an OxPoints entity is edited, the relevant chunk of XML is pulled out of
+File.xml and run through the forms.xsl stylesheet. This results in sets of
+initial data to prepopulate some Django forms to show to the user. Each set of
+initial data is accompanied by an XPath expression pointing at the element the
+form is representing.
+
+Each Django form has a serialize method that returns a chunk of XML to
+transclude back into the original file.

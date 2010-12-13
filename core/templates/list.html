@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}OxPoints entities{% endblock %}
+
+{% block body %}
+    <h1>List of OxPoints entities</h1>
+
+    <div class="filter-types">
+      Filter by type:
+      <ul>
+{% for type in types %}
+        <li><a href=".?type={{ type }}">{{ type }}</a></li>
+{% endfor %}
+      </ul>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>From</th>
+          <th>Homepage</th>
+          <th>Address</th>
+        </tr>
+      </thead>
+      <tbody>
+{% for object in objects %}
+        <tr style="background-color: {% ifequal user object.user %}#cfc{% else %}{% if object.user %}#fdd{% else %}{% cycle "#ddf" "#fff" %}{% endif %}{% endifequal %}">
+          <td><a href="{{ object.get_absolute_url }}">{{ object.oxpid }}</a></td>
+          <td>{{ object.sort_title }}</td>
+          <td>{{ object.type }}</td>
+          <td>{{ object.dt_from }}</td>
+          <td>{{ object.homepage }}</td>
+          <td>{{ object.address|linebreaksbr }}</td>
+        </tr>
+{% endfor %}
+      </tbody>
+    </table>
+{% endblock %}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb">
+  <head>
+    <title>{% block title %}OxPoints Editor{% endblock %}</title>
+    <link rel="stylesheet" href="{{ MEDIA_URL }}base.css" type="text/css"/>
+  </head>
+
+  <body>
+    <header>
+      <p>OxPoints Editor</p>
+      <div class="search">
+        <form method="get" action="{% url list %}">
+          <input name="q"/>
+          <input type="submit" value="Search"/>
+        </form>
+      </div>
+    </header>
+
+    <nav>
+      <ul>
+        <li><a href="{% url index %}">Home</a></li>
+        <li><a href="{% url list %}">List</a></li>
+        <li><a href="{% url list %}">Map</a></li>
+        <li><a href="{% url diff %}">Diff</a></li>
+        <li><a href="{% url commit %}">Commit changes</a></li>
+        <li><a href="{% url index %}">Help</a></li>
+        <li><a href="{% url index %}">Request complex change</a></li>
+      </ul>
+{% if recent %}
+      <ul class="recent">
+{% for obj in recent %}
+        <li><a href="{{ obj.get_absolute_url }}">{{ obj.title|default:"<em>unnamed</em>" }}</a></li>
+{% endfor %}
+      </ul>
+{% endif %}
+    </nav>
+
+    
+
+    <section>
+      {% block body %}{% endblock %}
+    </section>
+  </body>
+</html>

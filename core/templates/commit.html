@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Commit changes{% endblock %}
+
+{% block body %}
+
+<h1>Commit changes</h1>
+
+<form method="post" action=".">
+  <p>{{ form.message.label_tag }}</p>
+  {{ form.message }}
+
+  <p>
+    <input type="submit" value="Commit"/>
+  </p>
+</form>
+
+{% endblock %}

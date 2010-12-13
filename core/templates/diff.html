@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Diff{% endblock %}
+
+{% block body %}
+    <h1>OxPoints editor</h1>
+
+    {% for file in files %}
+      <section>
+      <h2>{{ file.object.filename }}</h2>
+
+      <table class="diff">
+        <tbody>
+      {% for tag, l, r in file.diff %}
+          <tr class="{{ tag }}">
+{% ifequal tag "ellipsis" %}
+            <td class="lineno">&hellip;</td>
+            <td class="old">&hellip;</td>
+            <td class="lineno">&hellip;</td>
+            <td class="new">&hellip;</td>
+{% else %}
+            <td class="lineno">{{ l.0|default:"" }}</td>
+            <td class="old">{{ l.1|safe }}</td>
+            <td class="lineno">{{ r.0|default:"" }}</td>
+            <td class="new">{{ r.1|safe }}</td>
+{% endifequal %}
+          </tr>
+       {% endfor %}
+        </tbody>
+      </table>
+
+
+
+      </section>
+    {% endfor %}
+{% endblock %}

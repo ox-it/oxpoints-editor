@@ -1,0 +1,253 @@
+{% extends "base.html" %}{% load oxpeditor_core %}
+
+{% block title %}{{ object.title }}{% endblock %}
+
+{% block body %}
+    
+
+{% if has_errors %}
+    <div class="errors">
+      There were errors in your submission. Please see below for further details.
+    </div>
+{% else %}
+    <aside class="actions">
+      <h2>Common actions</h2>
+      <ul>
+        <li>Add a new sub-entity</li>
+        <li>This entity has changed type</li>
+{% ifequal object.root_elem "org" %}
+        <li>This unit has been disbanded</li>
+        <li>This unit has moved location</li>
+{% endifequal %}
+{% ifequal object.root_elem "place" %}
+        <li>This place no longer exists</li>
+{% endifequal %}
+      </ul>
+    </aside>
+{% endif %}
+
+    <h1>{{ object.title }} <small>({{ object.oxpid }}, {{ object.type }})</small></h1>
+
+{% if editable %}
+    <form method="post" action=".">
+
+      {% for form in management_forms %}
+        {{ form }}
+      {% endfor %}
+{% else %}
+{% if object.user %}
+    <p>This entity is currently being edited by {{ object.user.first_name }} {{ object.user.last_name }} ({{ object.user.username }}).</p>
+{% else %}
+    <p>This entity is no longer active, and so cannot be edited. If OxPoints' historical record of this entity is incorrect, please e-mail with details.</p>
+{% endif %}
+{% endif %}
+
+      <div style="-moz-column-count:2; clear:both">
+
+      <section{% if forms.NameForm.errors|any %} class="has_errors"{% endif %}>
+        <h2>Names</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Delete?</th>
+              <th>Value</th>
+              <th>Preferred?</th>
+              <th>Sort?</th>
+              <th>Alternate?</th>
+              <th>Hidden?</th>
+            </tr>
+          </thead>
+          <tbody>
+{% for form in forms.NameForm.forms %}
+            <tr>
+              <td>{{ form.DELETE }}{{ form.path }}</td>
+              <td>{{ form.value }}{{ form.errors.value }}</td>
+              <td>{{ form.type_preferred }}</td>
+              <td>{{ form.type_sort }}</td>
+              <td>{{ form.type_alternate }}</td>
+              <td>{{ form.type_hidden }}</td>
+            </tr>
+{% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      <section{% if forms.DescriptionForm.errors|any %} class="has_errors"{% endif %}>
+        <h2>Description</h2>
+
+{% for form in forms.DescriptionForm.forms %}
+{% if form.errors %}
+        <div class="errors">
+          {{ form.errors }}
+        </div>
+{% endif %}
+              {{ form.path }}
+              {{ form.description }}
+{% endfor %}
+      </section>
+
+      <section{% if forms.IDNoForm.errors|any %} class="has_errors"{% endif %}>
+        <h2>Identifiers</h2>
+  
+        <table>
+          <thead>
+            <tr>
+              <th>Delete?</th>
+              <th>Value</th>
+              <th>Scheme</th>
+            </tr>
+          </thead>
+          <tbody>
+{% for form in forms.IDNoForm.forms %}
+            <tr>
+              <td>{{ form.DELETE }}{{ form.path }}</td>
+              <td>{{ form.value }}{{ form.errors.value }}</td>
+              <td>{{ form.scheme }}{{ form.errors.scheme }}</td>
+            </tr>
+{% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      <section{% if forms.AddressForm.errors|any %} class="has_errors"{% endif %}>
+        <h2>Addresses</h2>
+  
+{% for form in forms.AddressForm.forms %}
+{% if form.errors %}
+        <div class="errors">
+          {{ form.errors }}
+        </div>
+{% endif %}
+        {{ form.path }}
+        <table>
+          <tbody>
+            <tr>
+              <th>{{ form.street.label_tag }}</th>
+              <td>{{ form.street }}</td>
+              <td>{{ form.errors.street }}</td>
+            </tr><tr>
+              <th>{{ form.extended.label_tag }}</th>
+              <td>{{ form.extended }}</td>
+              <td>{{ form.errors.extended }}</td>
+            </tr><tr>
+              <th>{{ form.locality.label_tag }}</th>
+              <td>{{ form.locality }}</td>
+              <td>{{ form.errors.locality }}</td>
+            </tr><tr>
+              <th>{{ form.postcode.label_tag }}</th>
+              <td>{{ form.postcode }}</td>
+              <td>{{ form.errors.postcode }}</td>
+            </tr>
+          </tbody>
+        </table>
+{% endfor %}
+      </section>
+
+      <section{% if forms.URLForm.errors|any %} class="has_errors"{% endif %}>
+        <h2>URLs</h2>
+  
+        <table>
+          <thead>
+            <tr>
+              <th>Delete?</th>
+              <th>URL</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody>
+{% for form in forms.URLForm.forms %}
+            <tr>
+              <td>{{ form.DELETE }}{{ form.path }}</td>
+              <td>{{ form.url }}{{ form.errors.url }}</td>
+              <td>{{ form.ptype }}{{ form.errors.ptype }}</td>
+            </tr>
+{% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+{% if forms.LocationForm %}
+      <section{% if forms.LocationForm.errors|any %} class="has_errors"{% endif %}>
+        <h2>Location</h2>
+
+{% for form in forms.LocationForm.forms %}
+        {{ form.path }}
+        <table>
+          <tbody>
+            <tr>
+              <th>{{ form.latitude.label_tag }}</th>
+              <td>{{ form.latitude }}</td>
+              <td>{{ form.errors.latitude }}</td>
+            </tr><tr>
+              <th>{{ form.longitude.label_tag }}</th>
+              <td>{{ form.longitude }}</td>
+              <td>{{ form.errors.longitude }}</td>
+            </tr>
+          </tbody>
+        </table>
+{% endfor %}
+      </section>
+{% endif %}
+
+
+      <section id="sec-relations">
+        <h2>Relations</h2>
+          
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Other</th>
+            </tr>
+          </thead>
+          <tbody>
+{% for relation in active_relations %}
+            <tr>
+              <td>{{ relation.get_type_display }}</td>
+              <td><a href="{{ relation.passive.get_absolute_url }}">{{ relation.passive.sort_title|default:"<em>unnamed</em>" }}</a></td>
+            </tr>
+{% endfor %}
+{% for relation in passive_relations %}
+            <tr>
+              <td>{{ relation.get_inverse_type_display }}</td>
+              <td><a href="{{ relation.active.get_absolute_url }}">{{ relation.active.sort_title|default:"<em>unnamed</em>" }}</a></td>
+            </tr>
+{% endfor %}
+          </tbody>
+        </table>
+      </section>
+      </div>
+       
+{% if editable %}
+      <section id="sec-update" style="background-color:#a1c4d0">
+        <h2>Type of update</h2>
+
+        <p>This update…</p>
+
+{% if update_type_form.update_type.errors %}
+        <div class="errors">
+          {{ update_type_form.update_type.errors }}
+        </div>
+{% endif %}
+
+        {{ update_type_form.update_type }}
+
+{% if update_type_form.when.errors %}
+        <div class="errors">
+          {{ update_type_form.when.errors }}
+        </div>
+{% endif %}
+
+        <p>
+          If the latter, enter a date on which these changes happened: 
+          {{ update_type_form.when }}
+        </p>
+
+        <input type="submit" value="Update"/>
+      </section>
+
+    </form>
+{% endif %}
+
+{% endblock %}
