@@ -3,6 +3,7 @@ from stat import ST_MTIME
 from datetime import datetime
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
+from django.conf import settings
 from oxpeditor.core.models import File
 
 import os
@@ -12,11 +13,11 @@ NS = {'tei': 'http://www.tei-c.org/ns/1.0'}
 
 class Command(BaseCommand):
 
-    def handle(self, directory, *args, **objects):
-        filenames = os.listdir(directory)
+    def handle(self, *args, **objects):
+        filenames = os.listdir(settings.REPO_PATH)
 
         for filename in filenames:
-            fn = os.path.join(directory, filename)
+            fn = os.path.join(settings.REPO_PATH, filename)
             if not filename.endswith('.xml'):
                 continue
             mtime = datetime.fromtimestamp(stat(fn)[ST_MTIME])

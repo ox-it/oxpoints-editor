@@ -18,7 +18,6 @@ class LoginView(BaseView):
             raise ImproperlyConfigured('This view is supposed to set a REMOTE_USER environment variable')
 
         user = authenticate(username=username)
-        print user
         login(request, user)
 
         return HttpResponseSeeOther(request.GET.get('next', reverse('core:index')))

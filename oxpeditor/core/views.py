@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 from itertools import chain
 import difflib
 from datetime import date, datetime

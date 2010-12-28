@@ -40,8 +40,8 @@ def perform_commit(user, message):
     message_file.close()
 
     while True:
-        ret = subprocess.call(['svn', 'commit', '--username', 'kebl2765',
-                                                '--password', 'ayeminusblood',
+        ret = subprocess.call(['svn', 'commit', '--username', settings.SVN_USER,
+                                                '--password', settings.SVN_PASSWORD,
                                                 '-F', message_file.name])
         if ret == 0:
             break

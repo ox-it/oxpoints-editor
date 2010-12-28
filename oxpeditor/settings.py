@@ -1,9 +1,18 @@
 # Django settings for oxpeditor project.
+import ConfigParser
+import os
+
+ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
+
+config = ConfigParser.ConfigParser()
+config.read(os.path.join(ROOT, 'config.ini'))
+
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
+    ('OxPoints RT Queue', 'alexander.dutton@oucs.ox.ac.uk'),
     # ('Your Name', 'your_email@domain.com'),
 )
 
@@ -12,7 +21,7 @@ MANAGERS = ADMINS
 DATABASE_ENGINE = 'postgresql_psycopg2'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
 DATABASE_NAME = 'oxpeditor'   # Or path to database file if using sqlite3.
 DATABASE_USER = 'oxpeditor'             # Not used with sqlite3.
-DATABASE_PASSWORD = 'oxpeditor'         # Not used with sqlite3.
+DATABASE_PASSWORD = config.get('database', 'password')         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
@@ -47,7 +56,7 @@ MEDIA_URL = '/site-media/'
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
+ADMIN_MEDIA_PREFIX = '/admin-media/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'u4y$mvh=+g^twh+ropxb1djfyojkvgjwvogxb)-h70p)a9uotl'
@@ -93,7 +102,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
 )
 
-REPO_PATH = '/home/alex/Projects/oxpoints-data/'
+REPO_PATH = os.path.join(ROOT, 'oxpoints-data')
 SERVER_NAME = 'oxpoints.oucs.ox.ac.uk'
 
 LOGIN_URL = '/webauth/login/'
@@ -102,3 +111,6 @@ AUTHENTICATION_BACKENDS = (
     'oxpeditor.webauth.backends.WebauthBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
+
+SVN_USER = config.get('svn', 'user')
+SVN_PASSWORD = config.get('svn', 'password')
