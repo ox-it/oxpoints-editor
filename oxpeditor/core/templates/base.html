@@ -9,25 +9,38 @@
   <body>
     <header>
       <p>OxPoints Editor</p>
+      <div class="topright">
+      <small style="margin:0.2em 0;">
+{% if user.is_authenticated %}
+        Logged in as <em>{{ user.first_name }} {{ user.last_name }}</em> ({{ user.username }}).
+        <a href="{% url webauth:logout %}">Log out</a>
+{% else %}
+        <a href="{% url webauth:login %}">Log in</a>
+{% endif %}
+      </small>
 {% if perms.core.change_object %}
-      <div class="search">
+<br/>
         <form method="get" action="{% url core:list %}">
           <input name="q"/>
           <input type="submit" value="Search"/>
         </form>
-      </div>
 {% endif %}
+      </div>
     </header>
 
     <nav>
-      <small style="float:right">Logged in as <em>{{ user.first_name }} {{ user.last_name }}</em> ({{ user.username }})</small>
 {% if perms.core.change_object %}
       <ul>
         <li><a href="{% url core:index %}">Home</a></li>
         <li><a href="{% url core:list %}">List</a></li>
         <li><a href="{% url core:list %}">Map</a></li>
         <li><a href="{% url core:diff %}">Diff</a></li>
-        <li><a href="{% url core:commit %}">Commit changes</a></li>
+        <li>
+          <a href="{% url core:commit %}">Commit changes</a>
+          {% if pending_commit %}
+            <em>({{ pending_commit }} change{{ pending_commit|pluralize }} pending)</em>
+          {% endif %}
+        </li>
         <li><a href="{% url core:index %}">Help</a></li>
         <li><a href="{% url core:index %}">Request complex change</a></li>
       </ul>
@@ -38,6 +51,8 @@
 {% endfor %}
       </ul>
 {% endif %}
+{% else %}
+      &nbsp;
 {% endif %}
     </nav>
 

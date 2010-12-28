@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 
 from oxpeditor.utils.views import BaseView
 from oxpeditor.utils.http import HttpResponseSeeOther
@@ -23,5 +23,8 @@ class LoginView(BaseView):
         return HttpResponseSeeOther(request.GET.get('next', reverse('core:index')))
 
 class LogoutView(BaseView):
-    pass
+    def handle_GET(self, request, context):
+        logout(request)
+
+        return self.render(request, context, 'logout')
 

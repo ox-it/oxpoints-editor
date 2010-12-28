@@ -8,7 +8,7 @@ config = ConfigParser.ConfigParser()
 config.read(os.path.join(ROOT, 'config.ini'))
 
 
-DEBUG = False
+DEBUG = config.get('main', 'debug', 'false') == 'true'
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -98,6 +98,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'oxpeditor.core',
     'oxpeditor.utils',
+    'oxpeditor.webauth',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
 )

@@ -20,10 +20,19 @@ body > header p {
   
 }
 
-body > header div.search {
+body > header div.topright {
   position: absolute;
-  right: 1em;
-  top:1em;
+  right: 0.3em;
+  bottom:0.3em;
+  text-align: right;
+}
+
+body > header div.topright a {
+  color: #fff;
+}
+
+body > header div.topright form {
+  display:inline;
 }
 
 body > nav {
