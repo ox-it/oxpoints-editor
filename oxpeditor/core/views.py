@@ -9,8 +9,9 @@ from lxml import etree
 from pprint import pprint
 
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseBadRequest
 from django.conf import settings
 
@@ -27,13 +28,23 @@ class AuthedView(BaseView):
     def __call__(self, *args, **kwargs):
         return login_required(super(AuthedView, self).__call__)(*args, **kwargs)
 
+class EditingView(BaseView):
+    def __call__(self, *args, **kwargs):
+        perm = permission_required('core.change_object', login_url=reverse('core:insufficient-privileges'))
+        view = super(EditingView, self).__call__
+        return login_required(perm(view))(*args, **kwargs)
+
 class IndexView(BaseView):
-    pass
+    def handle_GET(self, request, context):
+        return self.render(request, context, 'index')
 
 class SearchView(BaseView):
     pass
 
-class CommitView(BaseView):
+class InsufficientPrivilegesView(AuthedView):
+    pass
+
+class CommitView(EditingView):
     def initial_context(self, request):
         return {
             'form': CommitForm(request.POST or None),
@@ -55,7 +66,7 @@ class CommitView(BaseView):
 
         return HttpResponseSeeOther('.')
 
-class DiffView(AuthedView):
+class DiffView(EditingView):
     def initial_context(self, request):
         edited = File.objects.filter(user=request.user)
 
@@ -103,7 +114,7 @@ class DiffView(AuthedView):
     def handle_GET(self, request, context):
         return self.render(request, context, 'diff')
 
-class ListView(BaseView):
+class ListView(AuthedView):
     def initial_context(self, request):
         objects = Object.objects.all() #.order_by('-user')
         if 'type' in request.GET:
@@ -133,7 +144,7 @@ class ListView(BaseView):
     def handle_GET(self, request, context):
         return self.render(request, context, 'list')
 
-class DetailView(AuthedView):
+class DetailView(EditingView):
     def initial_context(self, request, oxpid):
         try:
             obj = Object.objects.get(oxpid=oxpid, user__isnull=False)

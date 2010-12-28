@@ -1,8 +1,10 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
 
 from oxpeditor.utils.views import BaseView
+from oxpeditor.utils.http import HttpResponseSeeOther
 
 class IndexView(BaseView):
     pass
