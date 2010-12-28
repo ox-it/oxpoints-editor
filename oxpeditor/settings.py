@@ -8,7 +8,7 @@ config = ConfigParser.ConfigParser()
 config.read(os.path.join(ROOT, 'config.ini'))
 
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -114,3 +114,7 @@ AUTHENTICATION_BACKENDS = (
 
 SVN_USER = config.get('svn', 'user')
 SVN_PASSWORD = config.get('svn', 'password')
+
+EMAIL_HOST = 'smtp.ox.ac.uk'
+SERVER_EMAIL = 'oxpoints@opendata.nsms.ox.ac.uk'
+DEFAULT_FROM_EMAIL = 'oxpoints@oucs.ox.ac.uk'

@@ -20,7 +20,6 @@ def perform_commit(user, message):
     to_commit = set([])
     for file_obj in File.objects.filter(user=user):
         filename = os.path.join(settings.REPO_PATH, file_obj.filename)
-        print file_obj.id, filename, file_obj.last_modified, datetime.fromtimestamp(os.stat(filename)[stat.ST_MTIME])
         if not os.path.exists(filename):
             save_to_disk(file_obj, filename)
             subprocess.call(['svn', 'add', filename])
@@ -35,19 +34,19 @@ def perform_commit(user, message):
 
     message = "%s\n\n  -- %s %s (%s)\n" % (message, user.first_name, user.last_name, user.username)
 
-    message_file = tempfile.NamedTemporaryFile(delete=False)
-    message_file.write(message)
-    message_file.close()
+    message_file, message_filename = tempfile.mkstemp()
+    os.write(message_file, message)
+    os.close(message_file)
 
     while True:
         ret = subprocess.call(['svn', 'commit', '--username', settings.SVN_USER,
                                                 '--password', settings.SVN_PASSWORD,
-                                                '-F', message_file.name])
+                                                '-F', message_filename])
         if ret == 0:
             break
         to_commit -= perform_update()
 
-    os.unlink(message_file.name)
+    os.unlink(message_filename)
 
     for file_obj in to_commit:
         filename = os.path.join(settings.REPO_PATH, file_obj.filename)

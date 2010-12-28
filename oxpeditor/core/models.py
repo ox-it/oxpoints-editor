@@ -163,7 +163,7 @@ class Object(models.Model):
         ordering = ('sort_title', 'type')
 
     def get_absolute_url(self):
-        return reverse('detail', args=[self.oxpid])
+        return reverse('core:detail', args=[self.oxpid])
 
 class Relation(models.Model):
     user = models.ForeignKey(User, null=True, blank=True)
