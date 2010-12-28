@@ -94,6 +94,7 @@ INSTALLED_APPS = (
 )
 
 REPO_PATH = '/home/alex/Projects/oxpoints-data/'
+SERVER_NAME = 'oxpoints.oucs.ox.ac.uk'
 
 LOGIN_URL = '/webauth/login/'
 
