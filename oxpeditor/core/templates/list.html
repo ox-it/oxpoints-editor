@@ -23,6 +23,9 @@
           <th>From</th>
           <th>Homepage</th>
           <th>Address</th>
+          <th>OUCS</th>
+          <th>Est.</th>
+          <th>Fin.</th>
         </tr>
       </thead>
       <tbody>
@@ -32,8 +35,11 @@
           <td>{{ object.sort_title }}</td>
           <td>{{ object.type }}</td>
           <td>{{ object.dt_from }}</td>
-          <td>{{ object.homepage }}</td>
+          <td>{% if object.homepage %}<a href="{{ object.homepage }}">{{ object.homepage }}</a>{% endif %}</td>
           <td>{{ object.address|linebreaksbr }}</td>
+          <td>{{ object.idno_oucs|default:"" }}</td>
+          <td>{{ object.idno_estates|default:"" }}</td>
+          <td>{{ object.idno_finance|default:"" }}</td>
         </tr>
 {% endfor %}
       </tbody>

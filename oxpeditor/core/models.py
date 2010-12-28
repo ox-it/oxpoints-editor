@@ -21,6 +21,7 @@ IDNO_SCHEME_CHOICES = (
     ('edubase-urn', 'Edubase URN'),
     ('jiscmu', 'JISC Monitoring Unit identifier'),   
     ('osm', 'OSM feature'),   
+    ('finance', 'Finance (two-letter) code'),
 )
 
 RELATION_TYPE_CHOICES = (
@@ -44,7 +45,7 @@ URL_TYPE_CHOICES = (
     ('url', 'Homepage'),
     ('iturl', 'IT Support'),
     ('weblearn', 'WebLearn'),
-    ('library', 'Library'),
+    ('liburl', 'Library'),
 )
 
 class File(models.Model):
@@ -65,9 +66,10 @@ class File(models.Model):
 
         # Update the object metadata
         xml = date_filter(xml)
-        seen_ids = set()
+        seen_ids, seen_oxpids = set(), set()
         for entity in xml.xpath('descendant-or-self::*[@oxpID]'):
             oxpid = entity.attrib['oxpID']
+            seen_oxpids.add(oxpid)
             try:
                 obj = Object.objects.get(oxpid=oxpid)
             except Object.DoesNotExist:
@@ -111,6 +113,12 @@ class File(models.Model):
                 relation.user = self.user
                 relation.save()
 
+        for obj in Object.objects.filter(in_file=self):
+            if not obj.oxpid in seen_oxpids:
+                obj.active_relations.all().delete()
+                obj.passive_relations.all().delete()
+                obj.delete()
+
         if relations_unmodified:
             return
 
@@ -142,6 +150,10 @@ class Object(models.Model):
     type = models.TextField(blank=True)
     dt_from = models.TextField(null=True, blank=True)
     dt_to = models.TextField(null=True, blank=True)
+
+    idno_oucs = models.TextField(null=True, blank=True)
+    idno_estates = models.TextField(null=True, blank=True)
+    idno_finance = models.TextField(null=True, blank=True)
 
 
     def __unicode__(self):

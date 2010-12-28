@@ -94,3 +94,10 @@ INSTALLED_APPS = (
 )
 
 REPO_PATH = '/home/alex/Projects/oxpoints-data/'
+
+LOGIN_URL = '/webauth/login/'
+
+AUTHENTICATION_BACKENDS = (
+    'oxpeditor.webauth.backends.WebauthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)

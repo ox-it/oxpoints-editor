@@ -64,6 +64,15 @@
         </xsl:for-each>
         <xsl:value-of select="(tei:org | tei:place)/tei:location/tei:address[1]/tei:postCode"/>
       </address>
+      <idno_oucs>
+        <xsl:value-of select="tei:org/tei:idno[@type='oucs']"/>
+      </idno_oucs>
+      <idno_estates>
+        <xsl:value-of select="tei:place/tei:idno[@type='obn']"/>
+      </idno_estates>
+      <idno_finance>
+        <xsl:value-of select="tei:org/tei:idno[@type='finance']"/>
+      </idno_finance>
     </metadata>
 
   </xsl:template>

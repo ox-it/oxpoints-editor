@@ -24,9 +24,8 @@ from .commit import perform_commit
 from .forms import get_forms, UpdateTypeForm, CommitForm
 
 class AuthedView(BaseView):
-    @login_required
     def __call__(self, *args, **kwargs):
-        return super(AuthedView, self).__call__(*args, **kwargs)
+        return login_required(super(AuthedView, self).__call__)(*args, **kwargs)
 
 class IndexView(BaseView):
     pass
@@ -106,11 +105,16 @@ class DiffView(AuthedView):
 
 class ListView(BaseView):
     def initial_context(self, request):
-        objects = Object.objects.order_by('-user')
+        objects = Object.objects.all() #.order_by('-user')
         if 'type' in request.GET:
              objects = objects.filter(type=request.GET['type'])
         if 'q' in request.GET:
              objects = objects.filter(title__icontains=request.GET['q'])
+        for n in ('finance', 'oucs', 'estates'):
+            if n in request.GET:
+                 objects = getattr(objects, 'filter' if request.GET[n] != 'yes' else 'exclude')(**{'idno_%s' % n: ''})
+        if 'sort' in request.GET:
+             objects = objects.order_by(*request.GET['sort'].split(','))
         today = date.today().strftime('%Y-%m-%d')
         objects = (o for o in objects if not (o.dt_to and o.dt_to <= today))
         seen, filtered_objects = set(), []
@@ -119,9 +123,10 @@ class ListView(BaseView):
                 continue
             filtered_objects.append(obj)
             seen.add(obj.oxpid)
+#        [f.save(relations_unmodified=True) for f in File.objects.all()]
         
         return {
-             'objects': sorted(filtered_objects, key=lambda o:o.sort_title),
+             'objects': list(filtered_objects),
              'types': sorted(set(o.type for o in Object.objects.all())),
         }
 
