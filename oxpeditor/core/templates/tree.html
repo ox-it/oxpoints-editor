@@ -1,0 +1,27 @@
+{% extends "base.html" %}{% load mptt_tags %}
+
+{% block body %}
+
+<h1>Tree</h1>
+
+<table style="">
+  <tbody>
+    <tr>
+    {% for object in objects %}
+       <td rowspan="{{ object.get_descendant_count|add:"1" }}" style="vertical-align:top; padding:2px; background-color:{% cycle "#aaf" "#afa" "#faa" %}; border-bottom:4px solid #fff;">
+          <a href="{{ object.get_absolute_url }}">{{ object.title }}</a>
+          <small>{{ object.type }}</small>
+       </td>
+       {% if object.is_leaf_node %}
+         </tr>
+       {% endif %}
+       {% if not forloop.last %}
+         <tr>
+       {% endif %}
+     {% endfor %}
+    </tr>
+  </tbody>
+</table>
+
+
+{% endblock %}

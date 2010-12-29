@@ -147,6 +147,15 @@ class ListView(AuthedView):
     def handle_GET(self, request, context):
         return self.render(request, context, 'list')
 
+class TreeView(EditingView):
+    def initial_context(self, request):
+        return {
+            'objects': Object.tree.all().filter(root_elem='org'),
+        }
+
+    def handle_GET(self, request, context):
+        return self.render(request, context, 'tree')
+
 class DetailView(EditingView):
     def initial_context(self, request, oxpid):
         try:

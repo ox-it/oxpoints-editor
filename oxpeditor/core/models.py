@@ -5,6 +5,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
+from mptt.models import MPTTModel
+
 from .utils import date_filter
 from .xslt import transform, xslattr
 
@@ -108,6 +110,10 @@ class File(models.Model):
                     relation = Relation(active=active,
                                         passive=passive,
                                         type=relation_type)
+                if relation_type in ('controls', 'contains'):
+                    if relation.passive.parent != relation.active:
+                        relation.passive.parent = relation.active
+                        relation.passive.save()
                 relation.inferred = inferred
                 relation.in_file = self
                 relation.user = self.user
@@ -124,6 +130,9 @@ class File(models.Model):
 
         for r in Relation.objects.filter(in_file=self):
             if (r.active.oxpid, r.passive.oxpid, r.type) not in seen_ids:
+                if r.type in ('controls', 'contains'):
+                    r.passive.parent = None
+                    r.passive.save()
                 r.delete()
 
     def delete(self, *args, **kwargs):
@@ -137,7 +146,7 @@ class File(models.Model):
     class Meta:
         ordering = ('filename',)
             
-class Object(models.Model):
+class Object(MPTTModel):
     user = models.ForeignKey(User, null=True, blank=True)
     in_file = models.ForeignKey(File, null=True)
     oxpid = models.CharField(max_length = 8)
@@ -155,6 +164,7 @@ class Object(models.Model):
     idno_estates = models.TextField(null=True, blank=True)
     idno_finance = models.TextField(null=True, blank=True)
 
+    parent = models.ForeignKey('self', null=True, blank=True)
 
     def __unicode__(self):
         return '%s (%s, %s)' % (self.title, self.type, self.oxpid)
