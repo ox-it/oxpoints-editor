@@ -31,10 +31,13 @@ class AuthedView(BaseView):
         return login_required(super(AuthedView, self).__call__)(*args, **kwargs)
 
 class EditingView(BaseView):
-    def __call__(self, *args, **kwargs):
-        perm = permission_required('core.change_object', login_url=reverse('core:insufficient-privileges'))
-        view = super(EditingView, self).__call__
-        return login_required(perm(view))(*args, **kwargs)
+    def __call__(self, request, *args, **kwargs):
+        if not request.user.is_authenticated():
+            return HttpResponseSeeOther(reverse(settings.LOGIN_URL))
+        elif not request.user.has_perm('core.change_object'):
+            return self.render(request, context, 'insufficent-privileges')
+        else:
+            return super(EditingView, self).__call__(request, *args, **kwargs)
 
 class IndexView(BaseView):
     def handle_GET(self, request, context):
@@ -271,3 +274,5 @@ class DetailView(EditingView):
 
         return HttpResponseSeeOther('.')
 
+class RequestView(AuthedView):
+    pass

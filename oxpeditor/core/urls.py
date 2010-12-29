@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 
-from .views import IndexView, SearchView, DiffView, ListView, TreeView, DetailView, CommitView, InsufficientPrivilegesView
+from .views import IndexView, SearchView, DiffView, ListView, TreeView, DetailView, CommitView, RequestView
 
 urlpatterns = patterns('',
     (r'^$', IndexView(), {}, 'index'),
@@ -9,7 +9,7 @@ urlpatterns = patterns('',
     (r'^list/$', ListView(), {}, 'list'),
     (r'^tree/$', TreeView(root_elem='org'), {}, 'tree'),
     (r'^commit/$', CommitView(), {}, 'commit'),
-    (r'^insufficient-privileges/$', InsufficientPrivilegesView(), {}, 'insufficient-privileges'),
+    (r'^request/$', RequestView(), {}, 'request'),
     (r'^(?P<oxpid>\d{8})/$', DetailView(), {}, 'detail'),
     (r'^(?P<oxpid>\d{8})/tree/$', TreeView(), {}, 'detail-tree'),
 
