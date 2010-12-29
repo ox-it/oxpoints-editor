@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base.html" %}{% load oxpeditor_core %}
 
 {% block title %}OxPoints entities{% endblock %}
 
@@ -32,7 +32,7 @@
 {% for object in objects %}
         <tr style="background-color: {% ifequal user object.user %}#cfc{% else %}{% if object.user %}#fdd{% else %}{% cycle "#ddf" "#fff" %}{% endif %}{% endifequal %}">
           <td><a href="{{ object.get_absolute_url }}">{{ object.oxpid }}</a></td>
-          <td>{{ object.sort_title }}</td>
+          <td>{% if object.sort_title|contains_comma %}{{ object.sort_title }}{% else %}{{ object.title }}{% endif %}</td>
           <td>{{ object.type }}</td>
           <td>{{ object.dt_from }}</td>
           <td>{% if object.homepage %}<a href="{{ object.homepage }}">{{ object.homepage }}</a>{% endif %}</td>
