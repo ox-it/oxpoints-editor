@@ -1,10 +1,9 @@
 from django.conf.urls.defaults import *
 
-from .views import IndexView, SearchView, DiffView, ListView, TreeView, DetailView, CommitView, RequestView
+from .views import IndexView, DiffView, ListView, TreeView, DetailView, CommitView, RequestView
 
 urlpatterns = patterns('',
     (r'^$', IndexView(), {}, 'index'),
-    (r'^search/$', SearchView(), {}, 'search'),
     (r'^diff/$', DiffView(), {}, 'diff'),
     (r'^list/$', ListView(), {}, 'list'),
     (r'^tree/$', TreeView(root_elem='org'), {}, 'tree'),

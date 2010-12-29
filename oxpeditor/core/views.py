@@ -35,20 +35,16 @@ class EditingView(BaseView):
         if not request.user.is_authenticated():
             return HttpResponseSeeOther(reverse(settings.LOGIN_URL))
         elif not request.user.has_perm('core.change_object'):
-            return self.render(request, context, 'insufficent-privileges')
+            response = self.render(request, {}, 'insufficient-privileges')
+            print dir(response)
+            response.status_code = 403
+            return response
         else:
             return super(EditingView, self).__call__(request, *args, **kwargs)
 
 class IndexView(BaseView):
     def handle_GET(self, request, context):
         return self.render(request, context, 'index')
-
-class SearchView(BaseView):
-    pass
-
-class InsufficientPrivilegesView(AuthedView):
-    def handle_GET(self, request, context):
-        return self.render(request, context, 'insufficient-privileges')
 
 class CommitView(EditingView):
     def initial_context(self, request):
@@ -120,7 +116,7 @@ class DiffView(EditingView):
     def handle_GET(self, request, context):
         return self.render(request, context, 'diff')
 
-class ListView(AuthedView):
+class ListView(EditingView):
     def initial_context(self, request):
         objects = Object.objects.all() #.order_by('-user')
         if 'type' in request.GET:
@@ -275,4 +271,6 @@ class DetailView(EditingView):
         return HttpResponseSeeOther('.')
 
 class RequestView(AuthedView):
-    pass
+    def handle_GET(self, request, context):
+        return self.render(request, context, 'request')
+
