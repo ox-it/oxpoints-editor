@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<h1>Insufficient privileges</h1>
+
+<p>If you have been redirected to this page then you have insufficient privileges to use the OxPoints editor. Usually this means you are not on the ITSS register.</p>
+
+<p>If you would like to request access, please <a href="{% url core:index %}">contact the team</a>.</p>
+
+{% if user.groups.count %}
+<p>For the record, we believe you to be in the following groups:</p>
+
+<ul>
+{% for group in user.groups.all %}
+  <li>{{ group.name }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% endblock %}
