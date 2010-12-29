@@ -10,6 +10,11 @@ from xml.sax.saxutils import escape
 from lxml import etree
 from pprint import pprint
 
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.nonmultipart import MIMENonMultipart
+
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
@@ -278,4 +283,34 @@ class RequestView(AuthedView):
 
     def handle_GET(self, request, context):
         return self.render(request, context, 'request')
+
+    def handle_POST(self, request, context):
+        form, user = context['form'], request.user
+        if not form.is_valid():
+            return self.handle_GET(request, context)
+
+        s = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
+        s.starttls()
+        if settings.EMAIL_HOST_USER:
+            s.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+
+        sender = "%s %s (via OxPoints Editor) <%s>" % (user.first_name, user.last_name, user.email)
+        recipients = ['%s <%s>' % manager for manager in settings.MANAGERS]
+
+        msg = MIMEMultipart()
+        msg['Subject'] = form.cleaned_data['subject']
+        msg['From'] = sender
+        msg['To'] = ', '.join(recipients)
+        msg.attach(MIMEText(form.cleaned_data['message'], 'plain'))
+
+        if request.FILES.get('related_file'):
+            related_file = request.FILES['related_file']
+            attachment = MIMENonMultipart(*related_file.content_type.split('/', 1))
+            attachment.add_header('Content-Disposition', 'attachment', filename=related_file.name)
+            attachment.set_payload(related_file.read())
+            msg.attach(attachment)
+
+        s.sendmail(sender, recipients, msg.as_string())
+
+        return HttpResponseSeeOther(reverse('core:request') + '?sent=true')
 
