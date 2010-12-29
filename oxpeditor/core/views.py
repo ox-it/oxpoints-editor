@@ -24,7 +24,7 @@ from . import forms
 from .xslt import transform
 from .utils import date_filter
 from .commit import perform_commit
-from .forms import get_forms, UpdateTypeForm, CommitForm
+from .forms import get_forms, UpdateTypeForm, CommitForm, RequestForm
 
 class AuthedView(BaseView):
     def __call__(self, *args, **kwargs):
@@ -271,6 +271,11 @@ class DetailView(EditingView):
         return HttpResponseSeeOther('.')
 
 class RequestView(AuthedView):
+    def initial_context(self, request):
+        return {
+            'form': RequestForm(request.POST or None, request.FILES or None),
+        }
+
     def handle_GET(self, request, context):
         return self.render(request, context, 'request')
 

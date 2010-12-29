@@ -115,6 +115,11 @@ class UpdateTypeForm(forms.Form):
 class CommitForm(forms.Form):
     message = forms.CharField(widget=forms.Textarea, label='Commit description')
 
+class RequestForm(forms.Form):
+    subject = forms.CharField(label='Subject of request')
+    message = forms.CharField(widget=forms.Textarea, label='Message')
+    related_file = forms.FileField(required=False)
+
 class ImplicitDeleteFormSet(BaseFormSet):
     def is_valid(self):
         for i in range(self.total_form_count()):
