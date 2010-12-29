@@ -4,6 +4,12 @@
 
 <h1>Make a request</h1>
 
+{% if sent %}
+<div class="note">
+  Thank you! Your request has been sent successfully, and we should get back to you shortly.
+</div>
+{% endif %}
+
 <p>Feel free to use this form to notify of us of any update that is impossible or tedious to perform using the editor. You can also use it to request permission to edit the dataset (if you can't already) or request an account to edit the dataset programmatically.</p>
 
 <p>If you have any data (structured or otherwise) that you would like integrated you can upload an accompanying file.</p>

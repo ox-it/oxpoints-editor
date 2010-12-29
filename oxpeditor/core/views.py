@@ -279,6 +279,7 @@ class RequestView(AuthedView):
     def initial_context(self, request):
         return {
             'form': RequestForm(request.POST or None, request.FILES or None),
+            'sent': request.GET.get('sent') == 'true',
         }
 
     def handle_GET(self, request, context):

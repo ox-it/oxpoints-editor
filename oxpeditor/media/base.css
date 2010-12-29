@@ -134,8 +134,7 @@ div.filter-types li {
   display:inline;
 }
 
-div.errors {
-  border:2px solid #f00;
+div.errors, div.note {
   background-color:#fff;
   padding:0.5em;
   margin-left:1em;
@@ -143,6 +142,14 @@ div.errors {
   -moz-border-radius:5px;
   -webkit-border-radius:5px;
   
+}
+
+div.errors {
+  border:2px solid #f00;
+}
+
+div.note {
+  border:2px solid #00f;
 }
 
 div.errors ul.errorlist {

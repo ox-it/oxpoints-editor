@@ -118,5 +118,8 @@ SVN_USER = config.get('svn', 'user')
 SVN_PASSWORD = config.get('svn', 'password')
 
 EMAIL_HOST = 'smtp.ox.ac.uk'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = config.get('email', 'user')
+EMAIL_HOST_PASSWORD = config.get('email', 'password')
 SERVER_EMAIL = 'oxpoints@opendata.nsms.ox.ac.uk'
 DEFAULT_FROM_EMAIL = 'oxpoints@oucs.ox.ac.uk'
