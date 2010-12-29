@@ -44,7 +44,8 @@ class SearchView(BaseView):
     pass
 
 class InsufficientPrivilegesView(AuthedView):
-    pass
+    def handle_GET(self, request, context):
+        return self.render(request, context, 'insufficient-privileges')
 
 class CommitView(EditingView):
     def initial_context(self, request):
