@@ -89,6 +89,7 @@ class MediaType(object):
 
         Call as MediaType.resolve([MediaType], [(MediaType, renderer)]).
         """
+        assert isinstance(provide, tuple)
         accept.sort()
         eq_classes, accept = [[accept[-1]]], accept[:-1]
 

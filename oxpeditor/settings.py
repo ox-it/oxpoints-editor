@@ -92,15 +92,16 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 
 INSTALLED_APPS = (
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'mptt',
     'oxpeditor.core',
     'oxpeditor.utils',
     'oxpeditor.webauth',
     # Uncomment the next line to enable the admin:
-    'django.contrib.admin',
 )
 
 REPO_PATH = os.path.join(ROOT, 'oxpoints-data')

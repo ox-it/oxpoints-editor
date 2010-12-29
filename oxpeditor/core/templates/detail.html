@@ -28,6 +28,12 @@
 
     <h1>{{ object.title }} <small>({{ object.oxpid }}, {{ object.type }})</small></h1>
 
+    <p>
+      Contains {{ object.get_descendant_count }} entit{{ object.get_descendant_count|pluralize:"y,ies" }}.
+      <a href="{% url core:detail-tree object.oxpid %}">View contained</a>.
+      <a href="{% url core:detail-tree object.get_root.oxpid %}">View whole tree from {{ object.get_root.title|default:"<em>unnamed</em>" }}</a>.
+    </p>
+
 {% if editable %}
     <form method="post" action=".">
 

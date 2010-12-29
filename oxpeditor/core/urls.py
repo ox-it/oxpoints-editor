@@ -7,9 +7,10 @@ urlpatterns = patterns('',
     (r'^search/$', SearchView(), {}, 'search'),
     (r'^diff/$', DiffView(), {}, 'diff'),
     (r'^list/$', ListView(), {}, 'list'),
-    (r'^tree/$', TreeView(), {}, 'tree'),
+    (r'^tree/$', TreeView(root_elem='org'), {}, 'tree'),
     (r'^commit/$', CommitView(), {}, 'commit'),
     (r'^insufficient-privileges/$', InsufficientPrivilegesView(), {}, 'insufficient-privileges'),
     (r'^(?P<oxpid>\d{8})/$', DetailView(), {}, 'detail'),
+    (r'^(?P<oxpid>\d{8})/tree/$', TreeView(), {}, 'detail-tree'),
 
 )

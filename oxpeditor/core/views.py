@@ -148,12 +148,24 @@ class ListView(AuthedView):
         return self.render(request, context, 'list')
 
 class TreeView(EditingView):
-    def initial_context(self, request):
+    def __init__(self, root_elem=None):
+        self.root_elem = root_elem
+        super(TreeView, self).__init__()
+
+    def initial_context(self, request, oxpid=None):
+        if oxpid:
+            roots = Object.objects.filter(oxpid__in=oxpid.split(","))
+            objects = chain(*(root.get_descendants(include_self=True) for root in roots))
+            root = roots[0]
+        else:
+            objects = Object.tree.filter(root_elem=self.root_elem)
+            root = None
         return {
-            'objects': Object.tree.all().filter(root_elem='org'),
+            'objects': objects,
+            'root': root,
         }
 
-    def handle_GET(self, request, context):
+    def handle_GET(self, request, context, oxpid=None):
         return self.render(request, context, 'tree')
 
 class DetailView(EditingView):
