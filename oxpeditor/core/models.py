@@ -68,7 +68,7 @@ class File(models.Model):
 
         # Update the object metadata
         xml = date_filter(xml)
-        seen_ids, seen_oxpids = set(), set()
+        seen_ids, seen_oxpids, rels = set(), set(), set()
         for entity in xml.xpath('descendant-or-self::*[@oxpID]'):
             oxpid = entity.attrib['oxpID']
             seen_oxpids.add(oxpid)
@@ -84,9 +84,7 @@ class File(models.Model):
             if relations_unmodified:
                 continue
 
-            rels = set()
             for subentity in entity.xpath('*[@oxpID]', namespaces=NS):
-                print entity, subentity
                 relation_type = {'place': 'contains', 'org': 'controls'}[entity.tag.split('}')[1]]
                 rels.add((oxpid, subentity.attrib['oxpID'], relation_type, True))
 
@@ -98,27 +96,6 @@ class File(models.Model):
                 for relation_type in relation_types:
                     rels.add((active, passive, relation_type, False))
 
-            for active, passive, relation_type, inferred in rels:
-                seen_ids.add((active, passive, relation_type))
-                try:
-                    relation = Relation.objects.get(active__oxpid=active,
-                                                    passive__oxpid=passive,
-                                                    type=relation_type)
-                except Relation.DoesNotExist:
-                    active, _ = Object.objects.get_or_create(oxpid=active)
-                    passive, _ = Object.objects.get_or_create(oxpid=passive)
-                    relation = Relation(active=active,
-                                        passive=passive,
-                                        type=relation_type)
-                if relation_type in ('controls', 'contains'):
-                    if relation.passive.parent != relation.active:
-                        relation.passive.parent = relation.active
-                        relation.passive.save()
-                relation.inferred = inferred
-                relation.in_file = self
-                relation.user = self.user
-                relation.save()
-
         for obj in Object.objects.filter(in_file=self):
             if not obj.oxpid in seen_oxpids:
                 obj.active_relations.all().delete()
@@ -127,6 +104,31 @@ class File(models.Model):
 
         if relations_unmodified:
             return
+
+        relations = Relation.objects.filter(in_file=self).select_related('active', 'passive')
+        relations = dict(((r.active.oxpid, r.passive.oxpid, r.type), r) for r in relations)
+
+        for active, passive, relation_type, inferred in rels:
+            seen_ids.add((active, passive, relation_type))
+            try:
+                relation = relations[(active, passive, relation_type)]
+            except KeyError:
+                active, _ = Object.objects.get_or_create(oxpid=active)
+                passive, _ = Object.objects.get_or_create(oxpid=passive)
+                relation = Relation(active=active,
+                                    passive=passive,
+                                    type=relation_type)
+            if relation_type in ('controls', 'contains'):
+                if relation.passive.parent != relation.active:
+                    relation.passive.parent = relation.active
+                    relation.passive.save()
+
+            if not relation.pk or relation.inferred != inferred or relation.in_file != self:
+                relation.inferred = inferred
+                relation.in_file = self
+                relation.save()
+
+        Relation.objects.filter(in_file=self).update(user=self.user)
 
         for r in Relation.objects.filter(in_file=self):
             if (r.active.oxpid, r.passive.oxpid, r.type) not in seen_ids:
