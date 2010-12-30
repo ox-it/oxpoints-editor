@@ -1,4 +1,9 @@
+import fcntl
+import os
+from contextlib import contextmanager
 from datetime import date, timedelta
+
+from django.conf import settings
 
 def _ignore(a, b):
     b.attrib['ignore'] = 'true'
@@ -24,3 +29,11 @@ def date_filter(doc, dt=None, ignore=False):
 
     return doc
 
+@contextmanager
+def svn_lock():
+    with open(os.path.join(settings.REPO_PATH, '.oxpeditor.lock'), 'w') as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(f, fcntl.LOCK_UN)

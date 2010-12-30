@@ -3,7 +3,6 @@ from __future__ import with_statement
 from itertools import chain
 import difflib
 from datetime import date, datetime
-import fcntl
 import os
 
 from xml.sax.saxutils import escape
@@ -27,7 +26,7 @@ from oxpeditor.utils.http import HttpResponseSeeOther
 from .models import Object, Relation, File
 from . import forms
 from .xslt import transform
-from .utils import date_filter
+from .utils import date_filter, svn_lock
 from .commit import perform_commit
 from .forms import get_forms, UpdateTypeForm, CommitForm, RequestForm
 
@@ -64,12 +63,8 @@ class CommitView(EditingView):
         if not context['form'].is_valid():
             return self.handle_GET(request, context)
 
-        with open(os.path.join(settings.REPO_PATH, '.oxpeditor.lock'), 'w') as f:
-            fcntl.flock(f, fcntl.LOCK_EX)
-            try:
-                perform_commit(request.user, context['form'].cleaned_data['message'])
-            finally:
-                fcntl.flock(f, fcntl.LOCK_UN)
+        with svn_lock():
+            perform_commit(request.user, context['form'].cleaned_data['message'])
 
         return HttpResponseSeeOther('.')
 
@@ -315,3 +310,12 @@ class RequestView(AuthedView):
 
         return HttpResponseSeeOther(reverse('core:request') + '?sent=true')
 
+class AutoSuggestView(EditingView):
+    def initial_context(self, request):
+        return [{
+                 'value': obj.oxpid,
+                 'name': '%s %s (%s)' % (obj.oxpid, obj.title, obj.type),
+            } for obj in Object.objects.filter(title__icontains=request.GET.get('q', ''))]
+
+    def handle_GET(self, request, context):
+        return self.render_json(request, context, None)
