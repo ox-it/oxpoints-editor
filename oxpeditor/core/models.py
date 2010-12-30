@@ -56,7 +56,7 @@ class File(models.Model):
     last_modified = models.DateTimeField()
 
     xml = models.TextField()
-    initial_xml = models.TextField()
+    initial_xml = models.TextField(blank=True)
 
     def save(self, *args, **kwargs):
         relations_unmodified = kwargs.pop('relations_unmodified', False)
