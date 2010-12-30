@@ -134,7 +134,6 @@ class ImplicitDeleteFormSet(BaseFormSet):
                 form._errors = ErrorDict()
         return super(ImplicitDeleteFormSet, self).is_valid()
 
-
 def get_forms(xml, post_data):
     xml = date_filter(xml, ignore=True)
     xml = transform(xml, 'forms.xsl')
