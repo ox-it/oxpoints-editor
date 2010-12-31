@@ -11,5 +11,5 @@ def core(request):
             pass
     return {
         'recent': recent,
-        'pending_commit': Object.objects.filter(user=request.user).count() if isinstance(request.user, User) else 0,
+        'pending_commit': Object.objects.filter(user=request.user, modified=True).count() if isinstance(request.user, User) else 0,
     }

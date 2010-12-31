@@ -13,5 +13,5 @@ def transform(document, template_name, template_context=None):
 
 def xslattr(obj, document):
     for node in document.findall('*'):
-        setattr(obj, node.tag, node.text or '')
+        setattr(obj, node.tag, node.text or None)
 

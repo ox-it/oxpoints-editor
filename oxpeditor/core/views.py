@@ -266,7 +266,7 @@ class DetailView(EditingView):
         file_obj.user = request.user
         file_obj.xml = etree.tostring(root, pretty_print=True)
         file_obj.last_modified = datetime.now()
-        file_obj.save(relations_unmodified=True)
+        file_obj.save(relations_unmodified=True, objects_modified=set([oxpid]))
 
         return HttpResponseSeeOther('.')
 

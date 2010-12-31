@@ -24,6 +24,8 @@ IDNO_SCHEME_CHOICES = (
     ('jiscmu', 'JISC Monitoring Unit identifier'),   
     ('osm', 'OSM feature'),   
     ('finance', 'Finance (two-letter) code'),
+    ('twitter', 'Twitter account'),
+    ('facebook', 'Facebook page identifier'),
 )
 
 RELATION_TYPE_CHOICES = (
@@ -41,6 +43,15 @@ RELATION_TYPE_INVERSE = (
     ('controls', 'is sub-unit of'),
     ('primary', 'primary site of'),
 )
+
+RELATION_CONSTRAINTS = {
+    #           active constraints       passive constraints     cardinality constraints
+    'contains': ({'root_elem': 'place'}, {'root_elem': 'place'}, 1,    None),
+    'owns':     ({'root_elem': 'org'  }, {'root_elem': 'place'}, 1,    None),
+    'occupies': ({'root_elem': 'org'  }, {'root_elem': 'place'}, None, None),
+    'controls': ({'root_elem': 'org'  }, {'root_elem': 'org'  }, 1,    None),
+    'primary':  ({'root_elem': 'org'  }, {'root_elem': 'place'}, None, 1   ),
+}
 
 URL_TYPE_CHOICES = (
     ('', '-'*20),

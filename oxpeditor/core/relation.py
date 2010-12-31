@@ -19,6 +19,7 @@ class RelationWrangler(object):
     def __init__(self, user):
         self.files = FileXMLCache()
         self.user = user
+        self.objects_modified = defaultdict(set)
     
     def norm(self, obj):
         if isinstance(obj, Object):
@@ -40,6 +41,7 @@ class RelationWrangler(object):
             relation.attrib['to'] = dt_to
         
         obj.append(relation)
+        self.objects_modified[active.in_file.pk].add(active.oxpid)
     
     def remove(self, active, passive, relation_type, dt_to=None):
         active, passive = map(self.norm, [active, passive])
@@ -49,6 +51,8 @@ class RelationWrangler(object):
             self._remove_implicit(relation, dt_to)
         else:
             self._remove_explicit(relation, dt_to)
+
+        self.objects_modified[active.in_file.pk].add(active.oxpid)
     
     def _remove_implicit(self, relation, dt_to):
         self.split_out(relation.passive)
@@ -90,8 +94,6 @@ class RelationWrangler(object):
         old_xml = self.files[obj.in_file.pk]
         new_file = self.new_file(oxpid)
         
-        print etree.tostring(old_xml)
-        print obj.oxpid
         obj_xml = old_xml.xpath(".//*[@oxpID='%s']" % obj.oxpid)[0]
         
         # Copy and @from and @to attributes from ancestors 
@@ -112,9 +114,8 @@ class RelationWrangler(object):
         obj.in_file = new_file
         obj.save()
         
-        print etree.tostring(obj_xml)
-        
         self.files[new_file.pk] = new_obj
+        self.objects_modified[new_file.pk].add(obj.oxpid)
         
     def new_file(self, oxpid):
         file_obj = File.objects.create(filename='%s.xml' % oxpid,
@@ -135,4 +136,4 @@ class RelationWrangler(object):
             file_obj.user = self.user
             file_obj.xml = xml
             file_obj.last_modified = datetime.now()
-            file_obj.save()
+            file_obj.save(objects_modified=self.objects_modified[pk])

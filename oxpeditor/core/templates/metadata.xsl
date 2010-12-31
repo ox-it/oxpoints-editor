@@ -73,6 +73,12 @@
       <idno_finance>
         <xsl:value-of select="tei:org/tei:idno[@type='finance']"/>
       </idno_finance>
+      <longitude>
+        <xsl:value-of select="substring-before(tei:place/tei:location/tei:geo, ' ')"/>
+      </longitude>
+      <latitude>
+        <xsl:value-of select="substring-after(tei:place/tei:location/tei:geo, ' ')"/>
+      </latitude>
     </metadata>
 
   </xsl:template>
