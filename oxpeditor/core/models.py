@@ -60,6 +60,7 @@ class File(models.Model):
 
     def save(self, *args, **kwargs):
         relations_unmodified = kwargs.pop('relations_unmodified', False)
+        objects_modified = kwargs.pop('objects_modified', frozenset())
 
         xml = etree.fromstring(self.xml.replace('\r\n', '\n'))
         indent(xml)
@@ -78,6 +79,7 @@ class File(models.Model):
                 obj = Object(oxpid=oxpid)
             obj.user = self.user
             obj.in_file = self
+            obj.modified |= oxpid in objects_modified
             xslattr(obj, transform(entity, 'metadata.xsl'))
             obj.save()
 
@@ -151,25 +153,40 @@ class File(models.Model):
 class Object(MPTTModel):
     user = models.ForeignKey(User, null=True, blank=True)
     in_file = models.ForeignKey(File, null=True)
+    modified = models.BooleanField(default=False)
+    
     oxpid = models.CharField(max_length = 8)
 
-    title = models.TextField(blank=True)
-    homepage = models.TextField(blank=True)
-    address = models.TextField(blank=True)
-    sort_title = models.TextField(blank=True)
-    root_elem = models.TextField(blank=True)
-    type = models.TextField(blank=True)
+    title = models.TextField(null=True, blank=True)
+    homepage = models.TextField(null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    sort_title = models.TextField(null=True, blank=True)
+    root_elem = models.TextField(null=True, blank=True)
+    type = models.TextField(null=True, blank=True)
     dt_from = models.TextField(null=True, blank=True)
     dt_to = models.TextField(null=True, blank=True)
 
     idno_oucs = models.TextField(null=True, blank=True)
     idno_estates = models.TextField(null=True, blank=True)
     idno_finance = models.TextField(null=True, blank=True)
+    
+    longitude = models.FloatField(null=True)
+    latitude = models.FloatField(null=True)
 
     parent = models.ForeignKey('self', null=True, blank=True)
+    
+    autosuggest_title = models.TextField(blank=True)
 
     def __unicode__(self):
         return '%s (%s, %s)' % (self.title, self.type, self.oxpid)
+        
+    def save(self, *args, **kwargs):
+        parts = [self.oxpid]
+        for name in ('title', 'type', 'idno_oucs', 'idno_estates', 'idno_finance'):
+            if getattr(self, name, None):
+                parts.append(getattr(self, name))
+        self.autocomplete_title = ', '.join(parts)
+        super(Object, self).save(*args, **kwargs)
 
     class Meta:
         ordering = ('sort_title', 'type')
@@ -189,17 +206,18 @@ class Relation(models.Model):
     def get_inverse_type_display(self):
         return dict(RELATION_TYPE_INVERSE).get(self.type, 'is %s of' % self.type)
 
+def _indentation(s, level):
+    if s and s.strip():
+        return s
+    else:
+        return '\n' * max(1, (s or '').count('\n')) + '  ' * level
+
 def indent(elem, level=0):
-    i = "\n" + level*"  "
     if len(elem):
-        if not elem.text or not elem.text.strip():
-            elem.text = i + "  "
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
+        elem.text = _indentation(elem.text, level+1)
+        elem.tail = _indentation(elem.tail, level)
         for elem in elem:
             indent(elem, level+1)
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
-    else:
-        if level and (not elem.tail or not elem.tail.strip()):
-            elem.tail = i
+        elem.tail = _indentation(elem.tail, level)
+    elif level:
+        elem.tail = _indentation(elem.tail, level)
