@@ -201,3 +201,22 @@ table.diff tr.delete td {
 table.diff tr.insert td {
   background-color:#cfc;
 }
+
+h3 {
+  margin-bottom: 0;
+}
+
+section#sec-relations p {
+  margin: 0 0 0.2em 0;
+}
+
+ul.relation-list {
+  padding-left: 0;
+  list-style: none;
+}
+
+ul.relation-list li {
+  white-space: nowrap;
+  display: inline;
+  padding:5px 5px 5px 0;
+}

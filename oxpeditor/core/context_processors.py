@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db import connection
 
 from .models import Object
 
@@ -12,4 +13,5 @@ def core(request):
     return {
         'recent': recent,
         'pending_commit': Object.objects.filter(user=request.user, modified=True).count() if isinstance(request.user, User) else 0,
+        'connection': connection,
     }

@@ -3,7 +3,7 @@ from __future__ import with_statement
 from itertools import chain
 import difflib
 from datetime import date, datetime
-import os
+import os, re
 
 from xml.sax.saxutils import escape
 from lxml import etree
@@ -20,15 +20,17 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseBadRequest
 from django.conf import settings
+from django.db import connection
 
 from oxpeditor.utils.views import BaseView
 from oxpeditor.utils.http import HttpResponseSeeOther
-from .models import Object, Relation, File
+from .models import Object, Relation, File, RELATION_TYPE_CHOICES, RELATION_TYPE_INVERSE, RELATION_CONSTRAINTS
 from . import forms
 from .xslt import transform
 from .utils import date_filter, svn_lock
 from .commit import perform_commit
 from .forms import get_forms, UpdateTypeForm, CommitForm, RequestForm
+from .relation import RelationWrangler
 
 class AuthedView(BaseView):
     def __call__(self, *args, **kwargs):
@@ -179,6 +181,18 @@ class DetailView(EditingView):
 
         xml = etree.fromstring(obj.in_file.xml).xpath("descendant-or-self::*[@oxpID='%s']" % oxpid)[0]
         forms = get_forms(xml, request.POST or None)
+        
+        relations = []
+        for name, label in RELATION_TYPE_CHOICES:
+            active_constraint, passive_constraint, _, passive_cardinality = RELATION_CONSTRAINTS[name]
+            if obj.satisfies(active_constraint): 
+                relations.append({
+                    'name': name,
+                    'label': label,
+                    'relations': obj.active_relations.filter(type=name).order_by('passive__sort_title').select_related('active', 'passive'),
+                    'cardinality': passive_cardinality,
+                    'constraint': passive_constraint,
+                })
 
         return {
             'object': obj,
@@ -186,6 +200,7 @@ class DetailView(EditingView):
             'management_forms': [fs.management_form for fs in forms.values()],
             'active_relations': obj.active_relations.order_by('type', 'passive__sort_title').select_related('passive'),
             'passive_relations': obj.passive_relations.order_by('type', 'active__sort_title').select_related('active'),
+            'relations': relations,
             'update_type_form': UpdateTypeForm(request.POST or None),
             'editable': 'to' not in xml.attrib or (obj.user and obj.user != request.user),
         }
@@ -267,8 +282,35 @@ class DetailView(EditingView):
         file_obj.xml = etree.tostring(root, pretty_print=True)
         file_obj.last_modified = datetime.now()
         file_obj.save(relations_unmodified=True, objects_modified=set([oxpid]))
+        
+        self.wrangle_relations(request, context, oxpid, new_from)
 
         return HttpResponseSeeOther('.')
+    
+    def wrangle_relations(self, request, context, oxpid, new_from):
+        rw = RelationWrangler(request.user)
+
+        for rel in context['relations']:
+            to_add, to_remove = set(), set()
+            name = rel['name']
+            if 'as_values_%s' % name in request.POST:
+                old = set(r.passive.oxpid for r in rel['relations'])
+                new = set(request.POST['as_values_%s' % name].split(','))
+                to_add |= (new - old)
+                to_remove |= (old - new)
+            if 'reladd-%s' % name in request.POST:
+                to_add |= set(passive.strip() for passive in request.POST['reladd-%s' % name])
+            to_remove |= set(r.split('-')[-1] for r in request.POST if r.startswith('reldel-%s-' % name))
+        
+            to_add = set(o.oxpid for o in Object.objects.filter(oxpid__in=to_add, **rel['constraint'])) 
+            to_remove = set(r.passive.oxpid for r in Relation.objects.filter(active__oxpid=oxpid, passive__oxpid__in=to_remove, type=name))
+            
+            for passive in to_add:
+                rw.add(oxpid, passive, name, dt_from=new_from)
+            for passive in to_remove:
+                rw.remove(oxpid, passive, name, dt_to=new_from)
+                
+        rw.save()
 
 class RequestView(AuthedView):
     def initial_context(self, request):
@@ -311,11 +353,16 @@ class RequestView(AuthedView):
         return HttpResponseSeeOther(reverse('core:request') + '?sent=true')
 
 class AutoSuggestView(EditingView):
-    def initial_context(self, request):
+    def initial_context(self, request, name):
+        try:
+            _, constraint, _, _ = RELATION_CONSTRAINTS[name]
+        except KeyError:
+            raise Http404
+        
         return [{
                  'value': obj.oxpid,
-                 'name': '%s %s (%s)' % (obj.oxpid, obj.title, obj.type),
-            } for obj in Object.objects.filter(title__icontains=request.GET.get('q', ''))]
+                 'name': obj.autosuggest_title,
+            } for obj in Object.objects.filter(autosuggest_title__icontains=request.GET.get('q', ''), **constraint)]
 
-    def handle_GET(self, request, context):
+    def handle_GET(self, request, context, name):
         return self.render_json(request, context, None)

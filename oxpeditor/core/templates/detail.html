@@ -2,6 +2,38 @@
 
 {% block title %}{{ object.title }}{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}autoSuggest.css"/>
+<script type="text/javascript" src="{{ MEDIA_URL }}jquery-1.4.1.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}jquery.autoSuggest.js"></script>
+<script type="text/javascript">
+$(function () {
+  $('input.autosuggest').each(function(i, e) {
+    e = $(e);
+    preFill = [];
+    e.closest('div').find('ul li').each(function(j, f) {
+      f = $(f);
+      preFill.push({
+        value: f.find('input').attr('value'),
+        name: f.find('span').text(),
+      });
+    });
+    e.closest('div').find('.relation-list').remove()
+    e.attr('name', e.attr('name').replace(/^reladd/, 'relall'));
+            
+        
+    e.autoSuggest(e.attr('autosuggest'), {
+      minChars: 3,
+      searchObjProps: "name",
+      selectedItemProp: "name",
+      startText: "Select and type to add",
+      asHtmlID: e.attr('name').replace(/^relall-/, ''),
+      preFill: preFill});
+  });
+});
+</script>
+{% endblock %}
+
 {% block body %}
     
 
@@ -196,32 +228,32 @@
       </section>
 {% endif %}
 
-
       <section id="sec-relations">
         <h2>Relations</h2>
+        
+        {% for relation_group in relations %}
+        
+        <div>
+        <h3>{{ relation_group.label|capfirst }}</h3>
+        
+        {% if relation_group.relations.count %}
+        <ul class="relation-list">
+          {% for rel in relation_group.relations %}
+            <li>
+              <input name="reldel-{{ rel.type }}-{{ rel.passive.oxpid }}" value="{{ rel.passive.oxpid }}" type="checkbox"/>
+              <span>{{ rel.passive.autosuggest_title }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="relation-list"><em>Nothing</em></p>
+        {% endif %}
+        
+        <p><input class="autosuggest" name="reladd-{{ relation_group.name }}" autosuggest="{% url core:autosuggest relation_group.name %}"/></p>
+        </div>
+        
+        {% endfor %}
           
-        <table>
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Other</th>
-            </tr>
-          </thead>
-          <tbody>
-{% for relation in active_relations %}
-            <tr>
-              <td>{{ relation.get_type_display }}</td>
-              <td><a href="{{ relation.passive.get_absolute_url }}">{{ relation.passive.sort_title|default:"<em>unnamed</em>" }}</a></td>
-            </tr>
-{% endfor %}
-{% for relation in passive_relations %}
-            <tr>
-              <td>{{ relation.get_inverse_type_display }}</td>
-              <td><a href="{{ relation.active.get_absolute_url }}">{{ relation.active.sort_title|default:"<em>unnamed</em>" }}</a></td>
-            </tr>
-{% endfor %}
-          </tbody>
-        </table>
       </section>
       </div>
        

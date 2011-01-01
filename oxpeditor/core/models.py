@@ -193,10 +193,10 @@ class Object(MPTTModel):
         
     def save(self, *args, **kwargs):
         parts = [self.oxpid]
-        for name in ('title', 'type', 'idno_oucs', 'idno_estates', 'idno_finance'):
+        for name in ('title', 'idno_oucs', 'idno_estates', 'idno_finance'):
             if getattr(self, name, None):
                 parts.append(getattr(self, name))
-        self.autocomplete_title = ', '.join(parts)
+        self.autosuggest_title = ', '.join(parts)
         super(Object, self).save(*args, **kwargs)
 
     class Meta:
@@ -204,6 +204,12 @@ class Object(MPTTModel):
 
     def get_absolute_url(self):
         return reverse('core:detail', args=[self.oxpid])
+        
+    def satisfies(self, constraint):
+        if all('__' not in c for c in constraint):
+            return all(getattr(self, c) == constraint[c] for c in constraint)
+        else:
+            return Object.objects.filter(pk=self.pk, **constraint).count() == 1
 
 class Relation(models.Model):
     user = models.ForeignKey(User, null=True, blank=True)

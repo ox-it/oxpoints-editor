@@ -12,6 +12,6 @@ urlpatterns = patterns('',
     (r'^(?P<oxpid>\d{8})/$', DetailView(), {}, 'detail'),
     (r'^(?P<oxpid>\d{8})/tree/$', TreeView(), {}, 'detail-tree'),
 
-    (r'^autosuggest/$', AutoSuggestView(), {}, 'autosuggest'),
+    (r'^autosuggest:(?P<name>\w+)/$', AutoSuggestView(), {}, 'autosuggest'),
 
 )
