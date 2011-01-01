@@ -25,7 +25,7 @@ IDNO_SCHEME_CHOICES = (
     ('osm', 'OSM feature'),   
     ('finance', 'Finance (two-letter) code'),
     ('twitter', 'Twitter account'),
-    ('facebook', 'Facebook page identifier'),
+#    ('facebook', 'Facebook page identifier'),
 )
 
 RELATION_TYPE_CHOICES = (
