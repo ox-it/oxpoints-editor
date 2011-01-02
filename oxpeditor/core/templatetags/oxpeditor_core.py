@@ -8,7 +8,7 @@ def any_(value):
 
 @register.filter
 def contains_comma(value):
-    return ', ' in value
+    return isinstance(value, basestring) and ', ' in value
 
 @register.filter(name='contains')
 def contains_(value, arg):
