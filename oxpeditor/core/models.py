@@ -25,6 +25,7 @@ IDNO_SCHEME_CHOICES = (
     ('osm', 'OSM feature'),   
     ('finance', 'Finance (two-letter) code'),
     ('twitter', 'Twitter account'),
+    ('nexus', 'Nexus resource account'),
 #    ('facebook', 'Facebook page identifier'),
 )
 
@@ -60,6 +61,13 @@ URL_TYPE_CHOICES = (
     ('weblearn', 'WebLearn'),
     ('liburl', 'Library'),
 )
+
+TYPE_CHOICES = {
+    'org': ('University', 'Unit', 'StudentGroup', 'Department',
+            'Faculty', 'Division', 'Organization', 'College', 'Hall', 'Library', 'SubLibrary', 'Museum'),
+    'place': ('Room', 'Building', 'Space', 'Site', 'OpenSpace', 'Carpark'),
+    'object': ('Meter',),
+}
 
 class File(models.Model):
     filename = models.TextField()

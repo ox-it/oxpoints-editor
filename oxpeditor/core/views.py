@@ -28,7 +28,7 @@ from .models import Object, Relation, File, RELATION_TYPE_CHOICES, RELATION_TYPE
 from . import forms
 from .xslt import transform
 from .utils import date_filter, svn_lock
-from .commit import perform_commit
+from .subversion import perform_commit
 from .forms import get_forms, UpdateTypeForm, CommitForm, RequestForm
 from .relation import RelationWrangler
 
