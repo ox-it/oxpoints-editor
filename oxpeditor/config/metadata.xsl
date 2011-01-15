@@ -14,22 +14,22 @@
       -->
       <title>
         <xsl:choose>
-          <xsl:when test="(tei:org/tei:orgName | tei:place/tei:placeName)[not(@type) or @type='' or contains(@type, 'preferred')]">
-            <xsl:value-of select="(tei:org/tei:orgName | tei:place/tei:placeName)[not(@type) or @type='' or contains(@type, 'preferred')][position()=1]"/>
+          <xsl:when test="(tei:org/tei:orgName | tei:place/tei:placeName | tei:object/tei:objectName)[not(@type) or @type='' or contains(@type, 'preferred')]">
+            <xsl:value-of select="(tei:org/tei:orgName | tei:place/tei:placeName | tei:object/tei:objectName)[not(@type) or @type='' or contains(@type, 'preferred')][position()=1]"/>
           </xsl:when>
-          <xsl:when test="(tei:org/tei:orgName | tei:place/tei:placeName)">
-            <xsl:value-of select="(tei:org/tei:orgName | tei:place/tei:placeName)[position()=1]"/>
+          <xsl:when test="(tei:org/tei:orgName | tei:place/tei:placeName | tei:object/tei:objectName)">
+            <xsl:value-of select="(tei:org/tei:orgName | tei:place/tei:placeName | tei:object/tei:objectName)[position()=1]"/>
           </xsl:when>
           <xsl:otherwise/>
         </xsl:choose>
       </title>
       <sort_title>
         <xsl:choose>
-          <xsl:when test="(tei:org/tei:orgName | tei:place/tei:placeName)[contains(@type, 'sort')]">
-            <xsl:value-of select="(tei:org/tei:orgName | tei:place/tei:placeName)[contains(@type, 'sort')][position()=1]"/>
+          <xsl:when test="(tei:org/tei:orgName | tei:place/tei:placeName | tei:object/tei:objectName)[contains(@type, 'sort')]">
+            <xsl:value-of select="(tei:org/tei:orgName | tei:place/tei:placeName | tei:object/tei:objectName)[contains(@type, 'sort')][position()=1]"/>
           </xsl:when>
-          <xsl:when test="(tei:org/tei:orgName | tei:place/tei:placeName)">
-            <xsl:value-of select="(tei:org/tei:orgName | tei:place/tei:placeName)[position()=1]"/>
+          <xsl:when test="(tei:org/tei:orgName | tei:place/tei:placeName | tei:object/tei:objectName)">
+            <xsl:value-of select="(tei:org/tei:orgName | tei:place/tei:placeName | tei:object/tei:objectName)[position()=1]"/>
           </xsl:when>
           <xsl:otherwise/>
         </xsl:choose>
@@ -41,19 +41,19 @@
 
       <type>
         <xsl:choose>
-          <xsl:when test="(tei:org | tei:place)/@type">
-            <xsl:value-of select="(tei:org | tei:place)/@type"/>
+          <xsl:when test="*/@type">
+            <xsl:value-of select="*/@type"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of select="(tei:org | tei:place)/tei:trait[@type='type']/tei:desc"/>
+            <xsl:value-of select="*/tei:trait[@type='type']/tei:desc"/>
           </xsl:otherwise>
         </xsl:choose>
       </type>
       <dt_from>
-        <xsl:value-of select="(tei:org | tei:place)/@from"/>
+        <xsl:value-of select="*/@from"/>
       </dt_from>
       <dt_to>
-        <xsl:value-of select="(tei:org | tei:place)/@to"/>
+        <xsl:value-of select="*/@to"/>
       </dt_to>
       <homepage>
         <xsl:value-of select="(tei:org | tei:place)/tei:trait[@type='url']/tei:desc/tei:ptr/@target"/>

@@ -7,6 +7,7 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
 config = ConfigParser.ConfigParser()
 config.read(os.path.join(ROOT, 'config.ini'))
 
+CONFIG_PATH = os.path.join(ROOT, config.get('main', 'config'))
 
 DEBUG = config.get('main', 'debug', 'false') == 'true'
 TEMPLATE_DEBUG = DEBUG

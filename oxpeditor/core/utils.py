@@ -2,8 +2,12 @@ from __future__ import with_statement
 
 import fcntl
 import os
+import random
 from contextlib import contextmanager
 from datetime import date, timedelta
+from contextlib import closing
+
+from lxml import etree
 
 from django.conf import settings
 
@@ -39,3 +43,21 @@ def svn_lock():
             yield
         finally:
             fcntl.flock(f, fcntl.LOCK_UN)
+            
+def find_new_oxpids():
+    from .models import File
+    oxpids = set()
+    for file_obj in File.objects.all():
+        xml = etree.fromstring(file_obj.xml)
+        oxpids |= set(e.attrib['oxpID'] for e in xml.xpath('ancestor-or-self::*[@oxpID]'))
+    
+    while True:
+        oxpid = '5' + ''.join(random.choice('01234589') for i in range(7))
+        if oxpid not in oxpids:
+            oxpids.add(oxpid)
+            yield oxpid
+
+def find_new_oxpid():
+    with closing(find_new_oxpids()) as g:
+        return g.next()
+

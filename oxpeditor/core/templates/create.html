@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<h1>Add new {% if parent %}child entity of {{ parent.title }}{% else %}entity{% endif %}</h1>
+
+<form method="post" action=".">
+
+<table>
+  <tbody>
+    {{ form.as_table }}
+  </tbody>
+  <tfoot>
+    <tr><td colspan="2">
+      <input type="submit" value="Add"/>
+    </td></tr>
+  </tfoot>
+</table>
+
+</form>
+
+{% endblock %}

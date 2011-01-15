@@ -1,13 +1,17 @@
 from collections import defaultdict
+import itertools
+import re
 from lxml import etree
 
 from django import forms
 from django.forms.formsets import formset_factory, BaseFormSet
 from django.forms.util import ErrorDict
 
-from .models import IDNO_SCHEME_CHOICES, URL_TYPE_CHOICES
+from .models import IDNO_SCHEME_CHOICES, URL_TYPE_CHOICES, TYPE_CHOICES, SUB_RELATIONS
 from .utils import date_filter
 from .xslt import transform
+
+DATE_REGEX = r"""\d{1,4}(-\d{2}(-\d{2})?)?"""
 
 class NameForm(forms.Form):
     path = forms.CharField(required=False, widget=forms.HiddenInput)
@@ -119,6 +123,22 @@ class RequestForm(forms.Form):
     subject = forms.CharField(label='Subject of request')
     message = forms.CharField(widget=forms.Textarea, label='Message')
     related_file = forms.FileField(required=False)
+
+def CreateForm(*args, **kwargs):
+    parent_type = kwargs.pop('parent_type', None)
+    if parent_type:
+        choices = SUB_RELATIONS[parent_type][1]
+    else:
+        choices = itertools.chain(*(TYPE_CHOICES.values()))
+    choices = sorted(map(lambda x:(x,x), choices))
+    class form(forms.Form):
+        type = forms.ChoiceField(choices=choices)
+        title = forms.CharField(required=False, label='Name')
+        dt_from = forms.RegexField(DATE_REGEX,
+                                   error_messages={'invalid': 'Date must be in YYYY[-MM[-DD]] format'},
+                                   required=False,
+                                   label='When did this entity come into existence?')
+    return form(*args, **kwargs)
 
 class ImplicitDeleteFormSet(BaseFormSet):
     def is_valid(self):

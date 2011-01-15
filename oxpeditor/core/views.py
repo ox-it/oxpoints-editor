@@ -7,6 +7,7 @@ import os, re
 
 from xml.sax.saxutils import escape
 from lxml import etree
+from lxml.builder import ElementMaker
 from pprint import pprint
 
 import smtplib
@@ -18,19 +19,20 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, Http404
 from django.conf import settings
 from django.db import connection
 
 from oxpeditor.utils.views import BaseView
 from oxpeditor.utils.http import HttpResponseSeeOther
-from .models import Object, Relation, File, RELATION_TYPE_CHOICES, RELATION_TYPE_INVERSE, RELATION_CONSTRAINTS
+from .models import Object, Relation, File, RELATION_TYPE_CHOICES, RELATION_TYPE_INVERSE, RELATION_CONSTRAINTS, TYPE_CHOICES, SUB_RELATIONS, NS
 from . import forms
 from .xslt import transform
-from .utils import date_filter, svn_lock
+from .utils import date_filter, svn_lock, find_new_oxpid
 from .subversion import perform_commit
-from .forms import get_forms, UpdateTypeForm, CommitForm, RequestForm
+from .forms import get_forms, UpdateTypeForm, CommitForm, RequestForm, CreateForm
 from .relation import RelationWrangler
+from . import data_model
 
 class AuthedView(BaseView):
     def __call__(self, *args, **kwargs):
@@ -183,16 +185,13 @@ class DetailView(EditingView):
         forms = get_forms(xml, request.POST or None)
         
         relations = []
-        for name, label in RELATION_TYPE_CHOICES:
-            active_constraint, passive_constraint, _, passive_cardinality = RELATION_CONSTRAINTS[name]
-            if obj.satisfies(active_constraint): 
-                relations.append({
-                    'name': name,
-                    'label': label,
-                    'relations': obj.active_relations.filter(type=name).order_by('passive__sort_title').select_related('active', 'passive'),
-                    'cardinality': passive_cardinality,
-                    'constraint': passive_constraint,
-                })
+        for r in data_model.Type.for_name(obj.type).relation_types:
+            relations.append({
+                'types': data_model.Type.for_name(obj.type).types_for_relation(r.name),
+                'name': r.name,
+                'label': r.forward,
+                'relations': obj.active_relations.filter(type=r.name).order_by('passive__sort_title').select_related('active', 'passive'),
+            })
 
         return {
             'object': obj,
@@ -292,7 +291,7 @@ class DetailView(EditingView):
 
         for rel in context['relations']:
             to_add, to_remove = set(), set()
-            name = rel['name']
+            name, types = rel['name'], rel['types']
             if 'as_values_%s' % name in request.POST:
                 old = set(r.passive.oxpid for r in rel['relations'])
                 new = set(request.POST['as_values_%s' % name].split(','))
@@ -302,7 +301,7 @@ class DetailView(EditingView):
                 to_add |= set(passive.strip() for passive in request.POST['reladd-%s' % name])
             to_remove |= set(r.split('-')[-1] for r in request.POST if r.startswith('reldel-%s-' % name))
         
-            to_add = set(o.oxpid for o in Object.objects.filter(oxpid__in=to_add, **rel['constraint'])) 
+            to_add = set(o.oxpid for o in Object.objects.filter(oxpid__in=to_add) if o.type in types) 
             to_remove = set(r.passive.oxpid for r in Relation.objects.filter(active__oxpid=oxpid, passive__oxpid__in=to_remove, type=name))
             
             for passive in to_add:
@@ -353,16 +352,70 @@ class RequestView(AuthedView):
         return HttpResponseSeeOther(reverse('core:request') + '?sent=true')
 
 class AutoSuggestView(EditingView):
-    def initial_context(self, request, name):
-        try:
-            _, constraint, _, _ = RELATION_CONSTRAINTS[name]
-        except KeyError:
+    def initial_context(self, request, active_type, relation_name):
+        active_type = data_model.Type.for_name(active_type, None)
+        if not active_type:
+            raise Http404
+        types = active_type.types_for_relation(relation_name)
+        if not types:
             raise Http404
         
         return [{
                  'value': obj.oxpid,
                  'name': obj.autosuggest_title,
-            } for obj in Object.objects.filter(autosuggest_title__icontains=request.GET.get('q', ''), **constraint)]
+            } for obj in Object.objects.filter(autosuggest_title__icontains=request.GET.get('q', ''), type__in=types)]
 
-    def handle_GET(self, request, context, name):
+    def handle_GET(self, request, context, active_type, relation_name):
         return self.render_json(request, context, None)
+
+
+class CreateView(EditingView):
+    def initial_context(self, request, oxpid=None):
+        if oxpid:
+            parent = get_object_or_404(Object, oxpid=oxpid)
+            if not parent.child_types:
+                raise Http404
+            form = CreateForm(request.POST or None, parent_type=parent.type)
+        else:
+            parent = None
+            form = CreateForm(request.POST or None)
+        
+        return {
+            'form': form,
+            'parent': parent,
+        }
+    
+    def handle_GET(self, request, context, oxpid=None):
+        return self.render(request, context, 'create')
+    
+    def handle_POST(self, request, context, oxpid=None):
+        form, parent = context['form'], context['parent']
+        if not form.is_valid():
+            return self.handle_POST(request, context, oxpid)
+            
+        ptype, title, dt_from = map(form.cleaned_data.get, ['type', 'title', 'dt_from'])
+        
+        new_oxpid = find_new_oxpid()
+        root_elem = [e for e in TYPE_CHOICES if ptype in TYPE_CHOICES[e]][0]
+        file_obj = File(filename='%s.xml' % new_oxpid,
+                        user=request.user,
+                        last_modified=datetime.now())
+                        
+        E = ElementMaker(namespace=NS['tei'], nsmap={None: NS['tei']})
+        
+        xml = getattr(E, root_elem)(type=ptype, oxpID=new_oxpid)
+        if dt_from:
+            xml.attrib['from'] = dt_from
+        if title:
+            xml.append(getattr(E, '%sName' % root_elem)(title))
+        
+        file_obj.xml = etree.tostring(xml)
+        file_obj.save(objects_modified=(new_oxpid,))
+        
+        if parent:
+            rw = RelationWrangler(request.user)
+            rw.add(parent.oxpid, new_oxpid, SUB_RELATIONS[parent.type][0], dt_from)
+            rw.save()
+        
+        return HttpResponseSeeOther(reverse('core:detail', args=[new_oxpid]))
+            

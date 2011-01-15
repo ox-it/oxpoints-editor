@@ -2,6 +2,7 @@ import itertools
 from lxml import etree
 
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
@@ -9,41 +10,14 @@ from mptt.models import MPTTModel
 
 from .utils import date_filter
 from .xslt import transform, xslattr
+from . import data_model
 
 NS = {'tei': 'http://www.tei-c.org/ns/1.0'}
 
-IDNO_SCHEME_CHOICES = (
-    ('', '-'*20),
-    ('olis', 'OLIS'),
-    ('oucs', 'OUCS'),
-    ('obn', 'Estates'),
-    ('rae', 'RAE'),
-    ('ucas-institution', 'UCAS Institution Code'),
-    ('ukrlp-ukprn', 'UK Register of Learning Providers Number'),
-    ('edubase-urn', 'Edubase URN'),
-    ('jiscmu', 'JISC Monitoring Unit identifier'),   
-    ('osm', 'OSM feature'),   
-    ('finance', 'Finance (two-letter) code'),
-    ('twitter', 'Twitter account'),
-    ('nexus', 'Nexus resource account'),
-#    ('facebook', 'Facebook page identifier'),
-)
+IDNO_SCHEME_CHOICES = data_model.as_choices(data_model.Identifier.values())
 
-RELATION_TYPE_CHOICES = (
-    ('contains', 'contains'),
-    ('owns', 'owns'),
-    ('occupies', 'occupies'),
-    ('controls', 'has sub-unit'),
-    ('primary', 'has primary site'),
-)
-
-RELATION_TYPE_INVERSE = (
-    ('contains', 'is contained by'),
-    ('owns', 'is owned by'),
-    ('occupies', 'is occupied by'),
-    ('controls', 'is sub-unit of'),
-    ('primary', 'primary site of'),
-)
+RELATION_TYPE_CHOICES = data_model.as_choices(data_model.Relation.values(), 'forward')
+RELATION_TYPE_INVERSE = data_model.as_choices(data_model.Relation.values(), 'backward')
 
 RELATION_CONSTRAINTS = {
     #           active constraints       passive constraints     cardinality constraints
@@ -52,6 +26,7 @@ RELATION_CONSTRAINTS = {
     'occupies': ({'root_elem': 'org'  }, {'root_elem': 'place'}, None, None),
     'controls': ({'root_elem': 'org'  }, {'root_elem': 'org'  }, 1,    None),
     'primary':  ({'root_elem': 'org'  }, {'root_elem': 'place'}, None, 1   ),
+    'supplies': ({'type':      'Meter'}, Q(type='Meter') | Q(root_elem='place'), 1,    None),
 }
 
 URL_TYPE_CHOICES = (
@@ -62,12 +37,40 @@ URL_TYPE_CHOICES = (
     ('liburl', 'Library'),
 )
 
+PLACES = ('Room', 'Building', 'Space', 'Site', 'OpenSpace', 'Carpark')
+ORGS = ('University', 'Unit', 'StudentGroup', 'Department', 'Faculty',
+        'Division', 'Organization', 'College', 'Hall', 'Library',
+        'SubLibrary', 'Museum')
+OBJECTS = ('Meter',)
+
 TYPE_CHOICES = {
-    'org': ('University', 'Unit', 'StudentGroup', 'Department',
-            'Faculty', 'Division', 'Organization', 'College', 'Hall', 'Library', 'SubLibrary', 'Museum'),
-    'place': ('Room', 'Building', 'Space', 'Site', 'OpenSpace', 'Carpark'),
-    'object': ('Meter',),
+    'org': ORGS,
+    'place': PLACES,
+    'object': OBJECTS,
 }
+
+SUB_RELATIONS = {
+    'Room':         ('contains', ()),
+    'Building':     ('contains', ('Space', 'Room')),
+    'Space':        ('contains', ('Space', 'Room')),
+    'Site':         ('contains', ('Site', 'Building', 'Carpark', 'OpenSpace')),
+    'OpenSpace':    ('contains', ('OpenSpace',)),
+    'Carpark':      ('contains', ()),
+    'University':   ('controls', ('Division',)),
+    'Unit':         ('controls', ('Unit', 'Library')),
+    'StudentGroup': ('controls', ()),
+    'Department':   ('controls', ('Department', 'Unit', 'Library')),
+    'Faculty':      ('controls', ('Library',)),
+    'Division':     ('controls', ('Department', 'Unit', 'Faculty')),
+    'Organization': ('controls', ('Organization',)),
+    'College':      ('controls', ('Library',)),
+    'Hall':         ('controls', ('Library',)),
+    'Library':      ('controls', ('SubLibrary',)),
+    'SubLibrary':   ('controls', ()),
+    'Museum':       ('controls', ('Library',)),
+    'Meter':        ('supplies', ('Meter',)),
+}
+CREATE_IN_SAME_FILE = ('Space', 'Room', 'OpenSpace', 'Carpark', 'SubLibrary',)
 
 class File(models.Model):
     filename = models.TextField()
@@ -106,7 +109,7 @@ class File(models.Model):
                 continue
 
             for subentity in entity.xpath('*[@oxpID]', namespaces=NS):
-                relation_type = {'place': 'contains', 'org': 'controls'}[entity.tag.split('}')[1]]
+                relation_type = {'place': 'contains', 'org': 'controls', 'object': 'supplies'}[entity.tag.split('}')[1]]
                 rels.add((oxpid, subentity.attrib['oxpID'], relation_type, True))
 
             for relation in xml.xpath('tei:relation', namespaces=NS):
@@ -216,8 +219,17 @@ class Object(MPTTModel):
     def satisfies(self, constraint):
         if all('__' not in c for c in constraint):
             return all(getattr(self, c) == constraint[c] for c in constraint)
+        elif isinstance(constraint, Q):
+            return Object.objects.filter(constraint, pk=self.pk).count() == 1
         else:
             return Object.objects.filter(pk=self.pk, **constraint).count() == 1
+            
+    @property
+    def child_types(self):
+        try:
+            return data_model.Type.for_name(self.type).child_types
+        except KeyError:
+            return ()
 
 class Relation(models.Model):
     user = models.ForeignKey(User, null=True, blank=True)

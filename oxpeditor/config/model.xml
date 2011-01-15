@@ -1,0 +1,210 @@
+<oxpeditor-model>
+  <relations>
+    <relation name="occupies" forward="occupies"         backward="is occupied by"/>
+    <relation name="contains" forward="contains"         backward="is contained by"/>
+    <relation name="owns"     forward="owns"             backward="is owned by"/>
+    <relation name="supplies" forward="supplies"         backward="is supplied by"/>
+    <relation name="primary"  forward="has primary site" backward="is primary site of"/>
+    <relation name="controls" forward="has sub-unit"     backward="is sub-unit of"/>
+  </relations>
+  
+  <relation-sets>
+    <relation-set name="occupation">
+      <relation name="occupies" passive="Site Building Space Room"/>
+      <relation name="primary" passive="Site Building Space Room" max_cardinality="1"/>
+    </relation-set>
+  </relation-sets>
+
+
+  <identifiers>
+    <identifier name="oucs" types="Division Department Faculty Unit Library">
+      <label>OUCS code</label>
+    </identifier>
+    <identifier name="finance" types="Division Department Faculty Unit Library">
+      <label>finance code</label>
+    </identifier>
+    <identifier name="olis" types="Library SubLibrary">
+      <label>OLIS code</label>
+    </identifier>
+    <identifier name="obn" types="Building Room">
+      <label>estates code</label>
+    </identifier>
+    <identifier name="ucas-institution" types="University">
+      <label>UCAS institution code</label>
+    </identifier>
+    <identifier name="ucas-campus" types="College Hall">
+      <label>UCAS campus code</label>
+    </identifier>
+    <identifier name="ukrlp-ukprn" types="University">
+      <label>UK Register of Learning Providers Number</label>
+    </identifier>
+    <identifier name="edubase-urn" types="University">
+      <label>Edubase URN</label>
+    </identifier>
+    <identifier name="osm" types="Site Building OpenSpace">
+      <label>OSM feature</label>
+    </identifier>
+    <identifier name="jiscmu" types="University College Hall">
+      <label>JISC Monitoring Unit identifier</label>
+    </identifier>
+    <identifier name="twitter" types="University Department Faculty Division College Hall StudentGroup Organization">
+      <label>Twitter account name</label>
+    </identifier>
+    <identifier name="nexus" types="Room">
+      <label>Nexus resource account</label>
+    </identifier>
+  </identifiers>
+
+
+  <types>
+    <type name="University" root_element="org" may_create="false">
+      <label>university</label>
+      <relations>
+        <relation name="controls" passive="Division" child="true"/>
+        <relation name="owns"     passive="Building Site"/>
+      </relations>
+    </type>
+    
+    <type name="Division" root_element="org">
+      <label>division</label>
+      <relations>
+        <relation name="controls" passive="Department Unit Faculty" child="true"/>
+        <relation-set name="occupation"/>
+      </relations>
+    </type>
+    
+    <type name="Department" root_element="org">
+      <label>department</label>
+      <relations>
+        <relation name="controls" passive="Department Unit Library" child="true"/>
+        <relation-set name="occupation"/>
+      </relations>
+    </type>
+    
+    <type name="Faculty" root_element="org">
+      <label>faculty</label>
+      <relations>
+        <relation name="controls" passive="Unit Library" child="true"/>
+        <relation-set name="occupation"/>
+      </relations>
+    </type>
+    
+    <type name="Unit" root_element="org" may_create="false">
+      <label>unit</label>
+      <relations>
+        <relation name="controls" passive="Unit Library" child="true"/>
+        <relation-set name="occupation"/>
+      </relations>
+    </type>
+    
+    <type name="StudentGroup" root_element="org">
+      <label>student group</label>
+      <relations>
+        <relation name="controls" passive="Library" child="true"/>
+        <relation-set name="occupation"/>
+      </relations>
+    </type>
+    
+    <type name="Organization" root_element="org" may_create="false">
+      <label>organization</label>
+      <relations>
+        <relation-set name="occupation"/>
+      </relations>
+    </type>
+    
+    <type name="College" root_element="org">
+      <label>college</label>
+      <relations>
+        <relation name="controls" passive="Library" child="true"/>
+        <relation-set name="occupation"/>
+      </relations>
+    </type>
+  
+    <type name="Hall" root_element="org">
+      <label>PPH</label>
+      <relations>
+        <relation name="controls" passive="Library" child="true"/>
+        <relation-set name="occupation"/>
+      </relations>
+    </type>
+
+    <type name="Museum" root_element="org">
+      <label>museum</label>
+      <relations>
+        <relation name="controls" passive="Library" child="true"/>
+        <relation-set name="occupation"/>
+      </relations>
+    </type>
+    
+    <type name="Library" root_element="org">
+      <label>museum</label>
+      <relations>
+        <relation name="controls" passive="SubLibrary" child="true"/>
+        <relation-set name="occupation"/>
+      </relations>
+    </type>
+    
+    <type name="SubLibrary" root_element="org">
+      <label>library sub-location</label>
+      <relations>
+        <relation-set name="occupation"/>
+      </relations>
+    </type>
+    
+    
+    <type name="Site" root_element="place">
+      <label>site</label>
+      <relations>
+        <relation name="contains" passive="Building OpenSpace Carpark" child="true"/>
+      </relations>
+    </type>
+    
+    <type name="Building" root_element="place">
+      <label>building</label>
+      <relations>
+        <relation name="contains" passive="Space Room" child="true"/>
+        <relation name="contains" passive="Meter WAP"/>
+      </relations>
+    </type>
+    
+    <type name="Space" root_element="place">
+      <label>space</label>
+      <relations>
+        <relation name="contains" passive="Space Room" child="true"/>
+        <relation name="contains" passive="Meter WAP"/>
+      </relations>
+    </type>
+    
+    <type name="Room" root_element="place">
+      <label>room</label>
+      <relations>
+        <relation name="contains" passive="Meter WAP"/>
+      </relations>
+    </type>
+    
+    <type name="OpenSpace" root_element="place">
+      <label>open space</label>
+    </type>
+    
+    <type name="Carpark" root_element="place">
+      <label>car park</label>
+    </type>
+    
+    <type name="Outside" root_element="place" may_create="false">
+      <label>outside</label>
+    </type>
+    
+    <type name="Meter" root_element="object">
+      <label>meter</label>
+      <relations>
+        <relation name="supplies" passive="Meter" child="true"/>
+        <relation name="supplies" passive="Site Building Space Room"/>
+      </relations>
+    </type>
+    
+    <type name="WAP" root_element="object">
+      <label>wireless access point</label>
+    </type>
+  
+  </types>
+</oxpeditor-model>

@@ -1,13 +1,11 @@
+import os
+
 from lxml import etree
 
-from django.template import loader, Context
+from django.conf import settings
 
-def transform(document, template_name, template_context=None):
-
-    # Load a template and turn it into an XSL template
-    template = loader.get_template(template_name)
-    template = template.render(Context(template_context or {}))
-    template = etree.XSLT(etree.XML(template))
+def transform(document, template_name):
+    template = etree.XSLT(etree.parse(os.path.join(settings.CONFIG_PATH, template_name)))
 
     return template(document)
 

@@ -45,7 +45,9 @@ $(function () {
     <aside class="actions">
       <h2>Common actions</h2>
       <ul>
-        <li>Add a new sub-entity</li>
+{% if object.child_types %}
+        <li><a href="{% url core:detail-create object.oxpid %}">Add a new sub-entity</a></li>
+{% endif %}
         <li>This entity has changed type</li>
 {% ifequal object.root_elem "org" %}
         <li>This unit has been disbanded</li>
@@ -82,6 +84,7 @@ $(function () {
 
       <div style="-moz-column-count:2; clear:both">
 
+{% if forms.NameForm %}
       <section{% if forms.NameForm.errors|any %} class="has_errors"{% endif %}>
         <h2>Names</h2>
 
@@ -110,7 +113,9 @@ $(function () {
           </tbody>
         </table>
       </section>
+{% endif %}
 
+{% if forms.DescriptionForm %}
       <section{% if forms.DescriptionForm.errors|any %} class="has_errors"{% endif %}>
         <h2>Description</h2>
 
@@ -124,7 +129,9 @@ $(function () {
               {{ form.description }}
 {% endfor %}
       </section>
+{% endif %}
 
+{% if forms.IDNoForm %}
       <section{% if forms.IDNoForm.errors|any %} class="has_errors"{% endif %}>
         <h2>Identifiers</h2>
   
@@ -147,7 +154,9 @@ $(function () {
           </tbody>
         </table>
       </section>
+{% endif %}
 
+{% if forms.AddressForm %}
       <section{% if forms.AddressForm.errors|any %} class="has_errors"{% endif %}>
         <h2>Addresses</h2>
   
@@ -181,7 +190,9 @@ $(function () {
         </table>
 {% endfor %}
       </section>
+{% endif %}
 
+{% if forms.URLForm %}
       <section{% if forms.URLForm.errors|any %} class="has_errors"{% endif %}>
         <h2>URLs</h2>
   
@@ -204,6 +215,7 @@ $(function () {
           </tbody>
         </table>
       </section>
+{% endif %}
 
 {% if forms.LocationForm %}
       <section{% if forms.LocationForm.errors|any %} class="has_errors"{% endif %}>
@@ -249,7 +261,7 @@ $(function () {
         <p class="relation-list"><em>Nothing</em></p>
         {% endif %}
         
-        <p><input class="autosuggest" name="reladd-{{ relation_group.name }}" autosuggest="{% url core:autosuggest relation_group.name %}"/></p>
+        <p><input class="autosuggest" name="reladd-{{ relation_group.name }}" autosuggest="{% url core:autosuggest object.type relation_group.name %}"/></p>
         </div>
         
         {% endfor %}
