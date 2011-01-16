@@ -24,8 +24,9 @@ def perform_commit(user, message):
     to_commit = set()
     for file_obj in File.objects.filter(user=user):
         filename = os.path.join(settings.REPO_PATH, file_obj.filename)
+        requires_adding = not os.path.exists(filename)
         save_to_disk(file_obj, filename)
-        if not os.path.exists(filename):
+        if requires_adding:
             subprocess.call(['svn', 'add', filename])
         to_commit.add(file_obj)
 
