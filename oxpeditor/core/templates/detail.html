@@ -48,7 +48,6 @@ $(function () {
 {% if object.child_types %}
         <li><a href="{% url core:detail-create object.oxpid %}">Add a new sub-entity</a></li>
 {% endif %}
-        <li>This entity has changed type</li>
 {% ifequal object.root_elem "org" %}
         <li>This unit has been disbanded</li>
         <li>This unit has moved location</li>
@@ -75,11 +74,13 @@ $(function () {
         {{ form }}
       {% endfor %}
 {% else %}
+<div class="warning">
 {% if object.user %}
     <p>This entity is currently being edited by {{ object.user.first_name }} {{ object.user.last_name }} ({{ object.user.username }}).</p>
 {% else %}
-    <p>This entity is no longer active, and so cannot be edited. If OxPoints' historical record of this entity is incorrect, please e-mail with details.</p>
+    <p>This entity is no longer active, and so cannot be edited. If OxPoints' historical record of this entity is incorrect, please <a href="{% url core:request %}">tell us about it</a>.</p>
 {% endif %}
+</div>
 {% endif %}
 
       <div style="-moz-column-count:2; clear:both">

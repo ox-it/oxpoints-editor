@@ -4,7 +4,24 @@
 
 <h1>Add new {% if parent %}child entity of {{ parent.title }}{% else %}entity{% endif %}</h1>
 
+
 <form method="post" action=".">
+
+<p>Before adding a new place, check that it doesn't already exist by
+   searching. You may also wish to view the tree of related places or
+   organisations in case it isn't where you expected or it is misnamed.</p>
+   
+<p>If you know the date that this entity came into existence (e.g. for a
+   building, when it was constructed; or for an organisation when it was
+   formed) please enter it here. If you are unsure then leave it blank and the
+   OxPoints team will do some digging on your behalf.</p>
+
+{% if not parent %}
+<div class="warning">
+<p>This entity will not be entered in any hierarchy. You may wish to search
+   for a parent entity above, and then select "Add a new sub-entity"</p>
+</div>
+{% endif %}
 
 <table>
   <tbody>

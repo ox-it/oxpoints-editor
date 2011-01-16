@@ -7,7 +7,7 @@ from django.conf import settings
 model = etree.parse(os.path.join(settings.CONFIG_PATH, 'model.xml')).getroot()
 
 def as_choices(xs, attr='label'):
-    return (('', '-'*20),) + tuple(sorted(((x.name, getattr(x, attr)) for x in xs), key=lambda x:x[1]))
+    return (('', '-'*20),) + tuple(sorted(((x.name, getattr(x, attr)) for x in xs), key=lambda x:x[1].lower()))
 
 class WithRegistry(object):
     _registry = {}
@@ -58,11 +58,24 @@ class Type(WithRegistry):
         return set(Relation.for_name(name) for (name, t) in  self.relations)
 
     @property
-    def child_types(self):
+    def child_relations(self):
         return set(Relation.for_name(name) for ((name, t), child) in  self.relations.items() if child)
+
+    @property
+    def child_types(self):
+        return set(Type.for_name(t) for ((name, t), child) in  self.relations.items() if child)
 
     def types_for_relation(self, relation_name):
         return set(v for k,v in self.relations if k == relation_name)
+    
+    @classmethod
+    def get_child_relation(cls, active, passive):
+        active = cls.for_name(active)
+        for (relation, name), child in active.relations.items():
+            if name == passive and child:
+                return relation
+        else:
+            raise ValueError
 
 class Relation(WithRegistry):
     pass

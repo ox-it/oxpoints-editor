@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Help{% endblock %}
+
+{% block body %}
+
+<h1>Help</h1>
+
+<h2>Contents</h2>
+
+<ul style="list-style:none; padding-left:0">
+  <li>
+    <a href="#basics">Basics</a>
+    <ul>
+      <li><a href="#what-is-oxpoints">What is OxPoints?</a></li>
+      <li><a href="#extending-model">What if I want to add information about something OxPoints doesn't model?</a></li>
+      <li><a href="#types">What are the types?</a></li>
+    </ul>
+  </li>
+  <li>
+    <a href="#howto">How do I&hellip;</a>
+    <ul>
+      <li><a href="#add-entity">Add a new place or organisation?</a></li>
+    </ul>
+  </li>
+</ul>
+
+<div id="basics">
+  <h2>Basics</h2>
+
+  <div id="what-is-oxpoints">
+    <h3>What is OxPoints?</h3>
+    
+    <p>OxPoints is a dataset containing information about organisations and
+       places within the University. It is designed so that the data can be
+       easily incorporated into other systems.</p>
+    
+    <p>At the moment it contains such things as names, addresses, locations
+       and homepages. These data are available for reuse through a simple
+       API.</p>
+       
+    <p>For more information, please see
+       <a href="http://www.oucs.ox.ac.uk/oxpoints/">our public documentation</a>.</p>
+  </div>
+  
+  <div id="extending-model">
+    <h3>What if I want to add information about something OxPoints doesn't model?</h3>
+    
+    <p>Simply put, <a href="{% url core:request %}">get in touch</a> with your
+       proposal and we'll see what we can do.</p> 
+  </div>
+  
+  <div id="types">
+    <h3>What are the types?</h3>
+    
+    <dl>
+      <dt>University</dt>
+      <dd>Only used for the <em>University of Oxford</em>. You cannot create entities of this type.</dd>
+      <dt>College</dt>
+      <dd>A constituent college or society of the University, as defined by
+          <a href="http://www.admin.ox.ac.uk/statutes/782-121.shtml">Statute V</a>.</dd>
+      <dt>PPH</dt>
+      <dd>A Permanent Private Hall of the University, as defined by
+          <a href="http://www.admin.ox.ac.uk/statutes/782-121.shtml">Statute V</a>.</dd>
+      <dt>Department, Faculty, Unit</dt>
+      <dd>Mostly interchangeable, depending on the name or inclination of the unit in question.</dd>
+    </dl>
+  </div>
+
+{% endblock %}

@@ -104,7 +104,7 @@ class File(models.Model):
             obj.modified |= oxpid in objects_modified
             xslattr(obj, transform(entity, 'metadata.xsl'))
             obj.save()
-
+            
             if relations_unmodified:
                 continue
 
@@ -112,7 +112,7 @@ class File(models.Model):
                 relation_type = {'place': 'contains', 'org': 'controls', 'object': 'supplies'}[entity.tag.split('}')[1]]
                 rels.add((oxpid, subentity.attrib['oxpID'], relation_type, True))
 
-            for relation in xml.xpath('tei:relation', namespaces=NS):
+            for relation in entity.xpath('tei:relation', namespaces=NS):
                 active, passive = relation.getparent().attrib['oxpID'], relation.attrib['passive'][1:]
                 relation_types = [relation.attrib['name']]
                 if 'primary' in relation.attrib.get('type', '').split():
@@ -225,11 +225,22 @@ class Object(MPTTModel):
             return Object.objects.filter(pk=self.pk, **constraint).count() == 1
             
     @property
+    def child_relations(self):
+        try:
+            return data_model.Type.for_name(self.type).child_relations
+        except KeyError:
+            return ()
+    
+    @property
     def child_types(self):
         try:
             return data_model.Type.for_name(self.type).child_types
         except KeyError:
             return ()
+    
+    @property
+    def type_description(self):
+        return data_model.Type.for_name(self.type)
 
 class Relation(models.Model):
     user = models.ForeignKey(User, null=True, blank=True)

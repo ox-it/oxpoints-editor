@@ -15,4 +15,4 @@ NS = {'tei': 'http://www.tei-c.org/ns/1.0'}
 class Command(BaseCommand):
 
     def handle(self, *args, **objects):
-        subversion.perform_update()
+        subversion.perform_update(force=True)

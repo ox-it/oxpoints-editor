@@ -31,7 +31,7 @@ class RelationWrangler(object):
         active, passive = map(self.norm, [active, passive])
         xml = self.files[active.in_file.pk]
         
-        obj = xml.xpath("ancestor-or-self::*[@oxpID='%s']" % active.oxpid)[0]
+        obj = xml.xpath("/descendant-or-self::*[@oxpID='%s']" % active.oxpid)[0]
         relation = etree.Element('relation',
                                  passive='#%s' % passive.oxpid,
                                  name=relation_type)
@@ -66,7 +66,6 @@ class RelationWrangler(object):
         elems = xml.xpath("ancestor-or-self::*[@oxpID='%s']/tei:relation[@passive='#%s']" % (active.oxpid, passive.oxpid),
                           namespaces=NS)
         elems.sort(key=lambda elem: elem.attrib.get('from', ''), reverse=True)
-        print relation.in_file.pk, elems
         for elem in elems:
             if elem.attrib.get('to'):
                 continue

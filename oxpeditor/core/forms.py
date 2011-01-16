@@ -7,9 +7,10 @@ from django import forms
 from django.forms.formsets import formset_factory, BaseFormSet
 from django.forms.util import ErrorDict
 
-from .models import IDNO_SCHEME_CHOICES, URL_TYPE_CHOICES, TYPE_CHOICES, SUB_RELATIONS
+from .models import IDNO_SCHEME_CHOICES, URL_TYPE_CHOICES
 from .utils import date_filter
 from .xslt import transform
+import data_model
 
 DATE_REGEX = r"""\d{1,4}(-\d{2}(-\d{2})?)?"""
 
@@ -127,10 +128,11 @@ class RequestForm(forms.Form):
 def CreateForm(*args, **kwargs):
     parent_type = kwargs.pop('parent_type', None)
     if parent_type:
-        choices = SUB_RELATIONS[parent_type][1]
+        choices = data_model.Type.for_name(parent_type).child_types
     else:
-        choices = itertools.chain(*(TYPE_CHOICES.values()))
-    choices = sorted(map(lambda x:(x,x), choices))
+        choices = (t for t in data_model.Type.values() if t.may_create)
+    choices =  data_model.as_choices(choices)
+    
     class form(forms.Form):
         type = forms.ChoiceField(choices=choices)
         title = forms.CharField(required=False, label='Name')

@@ -6,17 +6,18 @@
 
 <table style="">
   <tbody>
-    <tr>
+  <tr>
     {% for object in objects %}
-       <td rowspan="{{ object.get_descendant_count|add:"1" }}" style="vertical-align:top; padding:2px; background-color:{% cycle "#aaf" "#afa" "#faa" %}; border-bottom:4px solid #fff;">
+ 
+       <td rowspan="{{ object.height }}" style="vertical-align:top; padding:2px; background-color:{% cycle "#aaf" "#afa" "#faa" %}; border-bottom:4px solid #fff;">
           <a href="{{ object.get_absolute_url }}">{{ object.title|default:"<em>unnamed</em>" }}</a>
           <small>{{ object.type }}</small>
+          {% if object.child_types %}
+        <small><a href="{% url core:detail-create object.oxpid %}">Add child</a></small>
+{% endif %}
        </td>
-       {% if object.is_leaf_node %}
-         </tr>
-       {% endif %}
-       {% if not forloop.last %}
-         <tr>
+       {% if object.final and not forloop.last %}
+         </tr><tr>
        {% endif %}
      {% endfor %}
     </tr>

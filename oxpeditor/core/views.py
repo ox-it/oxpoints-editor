@@ -25,7 +25,7 @@ from django.db import connection
 
 from oxpeditor.utils.views import BaseView
 from oxpeditor.utils.http import HttpResponseSeeOther
-from .models import Object, Relation, File, RELATION_TYPE_CHOICES, RELATION_TYPE_INVERSE, RELATION_CONSTRAINTS, TYPE_CHOICES, SUB_RELATIONS, NS
+from .models import Object, Relation, File, NS
 from . import forms
 from .xslt import transform
 from .utils import date_filter, svn_lock, find_new_oxpid
@@ -44,7 +44,6 @@ class EditingView(BaseView):
             return HttpResponseSeeOther(reverse(settings.LOGIN_URL))
         elif not request.user.has_perm('core.change_object'):
             response = self.render(request, {}, 'insufficient-privileges')
-            print dir(response)
             response.status_code = 403
             return response
         else:
@@ -67,10 +66,20 @@ class CommitView(EditingView):
         if not context['form'].is_valid():
             return self.handle_GET(request, context)
 
+        to_commit = set(File.objects.filter(user=request.user))
+        edited = defaultdict(set)
+        for obj in Object.objects.filter(user=request.user, modified=True):
+            edited[obj.in_file].add(obj.oxpid)
+            
         with svn_lock():
-            perform_commit(request.user, context['form'].cleaned_data['message'])
+            successful = perform_commit(request.user, context['form'].cleaned_data['message'])
+        unsuccessful = to_commit - successful
 
-        return HttpResponseSeeOther('.')
+        return HttpResponseSeeOther('.?%s' % urllib.urlencode({
+            'done': 'true',
+            'successful': ','.join(chain(*(edited[f] for f in successful))),
+            'unsuccessful': ','.join(chain(*(edited[f] for f in unsuccessful))),
+        }))            
 
 class DiffView(EditingView):
     def initial_context(self, request):
@@ -150,7 +159,27 @@ class ListView(EditingView):
     def handle_GET(self, request, context):
         return self.render(request, context, 'list')
 
+
+    
+
 class TreeView(EditingView):
+    def walk_tree(self, it, obj):
+        obj.final = False
+        if obj.rght == obj.lft + 1:
+            obj.height = 1
+            obj.final = True
+            return 1
+        obj.height = 0
+        while True:
+            try:
+                child = it.next()
+            except StopIteration:
+                return max(1, obj.height)
+            height = self.walk_tree(it, child)
+            obj.height += height
+            if child.rght == obj.rght - 1:
+                return max(1, obj.height)
+
     def __init__(self, root_elem=None):
         self.root_elem = root_elem
         super(TreeView, self).__init__()
@@ -158,11 +187,16 @@ class TreeView(EditingView):
     def initial_context(self, request, oxpid=None):
         if oxpid:
             roots = Object.objects.filter(oxpid__in=oxpid.split(","))
-            objects = chain(*(root.get_descendants(include_self=True) for root in roots))
+            objects = list(chain(*(root.get_descendants(include_self=True) for root in roots)))
             root = roots[0]
         else:
             objects = Object.tree.filter(root_elem=self.root_elem)
             root = None
+
+        it = iter(objects)
+        for i in it:
+            self.walk_tree(it, i)
+
         return {
             'objects': objects,
             'root': root,
@@ -221,7 +255,6 @@ class DetailView(EditingView):
         xml = root.xpath("descendant-or-self::*[@oxpID='%s']" % oxpid)[0]
 
         if not (all([fs.is_valid() for fs in context['forms'].values()]) and context['update_type_form'].is_valid()):
-            print [(fs.__class__, fs.is_valid()) for fs in context['forms'].values()], context['update_type_form'].is_valid()
             context['has_errors'] = True
             return self.handle_GET(request, context, oxpid)
 
@@ -375,7 +408,7 @@ class CreateView(EditingView):
             parent = get_object_or_404(Object, oxpid=oxpid)
             if not parent.child_types:
                 raise Http404
-            form = CreateForm(request.POST or None, parent_type=parent.type)
+            form = CreateForm(request.POST or None, initial={'dt_from': parent.dt_from}, parent_type=parent.type)
         else:
             parent = None
             form = CreateForm(request.POST or None)
@@ -396,7 +429,7 @@ class CreateView(EditingView):
         ptype, title, dt_from = map(form.cleaned_data.get, ['type', 'title', 'dt_from'])
         
         new_oxpid = find_new_oxpid()
-        root_elem = [e for e in TYPE_CHOICES if ptype in TYPE_CHOICES[e]][0]
+        root_elem = data_model.Type.for_name(ptype).root_element
         file_obj = File(filename='%s.xml' % new_oxpid,
                         user=request.user,
                         last_modified=datetime.now())
@@ -414,8 +447,12 @@ class CreateView(EditingView):
         
         if parent:
             rw = RelationWrangler(request.user)
-            rw.add(parent.oxpid, new_oxpid, SUB_RELATIONS[parent.type][0], dt_from)
+            relation_name = data_model.Type.get_child_relation(parent.type, ptype)
+            rw.add(parent.oxpid, new_oxpid, relation_name, dt_from)
             rw.save()
         
         return HttpResponseSeeOther(reverse('core:detail', args=[new_oxpid]))
             
+class HelpView(BaseView):
+    def handle_GET(self, request, context):
+        return self.render(request, context, 'help')

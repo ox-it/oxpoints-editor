@@ -134,22 +134,32 @@ div.filter-types li {
   display:inline;
 }
 
-div.errors, div.note {
+div.errors, div.note, div.warning {
   background-color:#fff;
   padding:0.5em;
-  margin-left:1em;
+  margin:1em;
   margin-right:1em;
   -moz-border-radius:5px;
   -webkit-border-radius:5px;
+  padding-left:45px;
+  background-position: 10px center;
+  background-repeat: no-repeat;
   
 }
 
 div.errors {
   border:2px solid #f00;
+  background-image: url('icons/error.png');
 }
 
 div.note {
   border:2px solid #00f;
+  background-image: url('icons/note.png');
+}
+
+div.warning {
+  border:2px solid #dd0;
+  background-image: url('icons/warning.png');
 }
 
 div.errors ul.errorlist {

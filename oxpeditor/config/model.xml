@@ -137,7 +137,7 @@
     </type>
     
     <type name="Library" root_element="org">
-      <label>museum</label>
+      <label>library</label>
       <relations>
         <relation name="controls" passive="SubLibrary" child="true"/>
         <relation-set name="occupation"/>
@@ -167,7 +167,7 @@
       </relations>
     </type>
     
-    <type name="Space" root_element="place">
+    <type name="Space" root_element="place" implicit_containment="true">
       <label>space</label>
       <relations>
         <relation name="contains" passive="Space Room" child="true"/>
@@ -175,7 +175,7 @@
       </relations>
     </type>
     
-    <type name="Room" root_element="place">
+    <type name="Room" root_element="place" implicit_containment="true">
       <label>room</label>
       <relations>
         <relation name="contains" passive="Meter WAP"/>

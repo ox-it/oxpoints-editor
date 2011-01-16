@@ -20,8 +20,6 @@ def save_to_disk(file_obj, filename):
 
 def perform_commit(user, message):
     os.chdir(settings.REPO_PATH)
-    
-    print "Beginning commit"
 
     to_commit = set()
     for file_obj in File.objects.filter(user=user):
@@ -30,7 +28,6 @@ def perform_commit(user, message):
         if not os.path.exists(filename):
             subprocess.call(['svn', 'add', filename])
         to_commit.add(file_obj)
-        print "Adding %s", file_obj.filename
 
     if not to_commit:
         return set()
@@ -43,7 +40,6 @@ def perform_commit(user, message):
         os.close(message_file)
     
         for i in range(5):
-            print "Attempting to commit", to_commit
             ret = subprocess.call(['svn', 'commit', '--username', settings.SVN_USER,
                                                     '--password', settings.SVN_PASSWORD,
                                                     '-F', message_filename]
@@ -65,7 +61,7 @@ def perform_commit(user, message):
     
     return to_commit
     
-def perform_update():
+def perform_update(force=False):
     os.chdir(settings.REPO_PATH)
 
     svn_proc = subprocess.Popen(['svn', 'update', '--accept', 'theirs-full'], stdout=subprocess.PIPE)
@@ -79,7 +75,7 @@ def perform_update():
     filenames = set(os.listdir(settings.REPO_PATH))
     updated = set()
 
-    for filename in (svn_updated & filenames):
+    for filename in filenames if force else (svn_updated & filenames):
         if not filename.endswith('.xml'):
             continue
         full_path = os.path.join(settings.REPO_PATH, filename)
