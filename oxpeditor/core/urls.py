@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 
-from .views import IndexView, DiffView, ListView, TreeView, DetailView, CommitView, RequestView, AutoSuggestView, CreateView, HelpView
+from .views import IndexView, DiffView, ListView, TreeView, DetailView, CommitView, RequestView, AutoSuggestView, CreateView, HelpView, RevertView
 
 urlpatterns = patterns('',
     (r'^$', IndexView(), {}, 'index'),
@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     (r'^request/$', RequestView(), {}, 'request'),
     (r'^(?P<oxpid>\d{8})/$', DetailView(), {}, 'detail'),
     (r'^(?P<oxpid>\d{8})/tree/$', TreeView(), {}, 'detail-tree'),
+    (r'^(?P<oxpid>\d{8})/revert/$', RevertView(), {}, 'detail-revert'),
     
     (r'^create/$', CreateView(), {}, 'create'),
     (r'^(?P<oxpid>\d{8})/create/$', CreateView(), {}, 'detail-create'),

@@ -443,6 +443,7 @@ class CreateView(EditingView):
         if title:
             xml.append(getattr(E, '%sName' % root_elem)(title))
         
+        file_obj.initial_xml = '<empty/>'
         file_obj.xml = etree.tostring(xml)
         file_obj.save(objects_modified=(new_oxpid,))
         
@@ -457,3 +458,44 @@ class CreateView(EditingView):
 class HelpView(BaseView):
     def handle_GET(self, request, context):
         return self.render(request, context, 'help')
+
+class RevertView(BaseView):
+    def initial_context(self, request, oxpid):
+        return {
+            'obj': get_object_or_404(Object, oxpid=oxpid)
+        }
+
+    def handle_GET(self, request, context, oxpid):
+        return self.render(request, context, 'revert')
+
+    def handle_POST(self, request, context, oxpid):
+        file_obj = obj.in_file
+        try:
+            old = etree.fromstring(file_obj.initial_xml).xpath("descendant-or-self::*[@oxpID='%s']" % oxpid)[0]
+            new = etree.fromstring(file_obj.xml).xpath("descendant-or-self::*[@oxpID='%s']" % oxpid)[0]
+        except IndexError:
+            raise NotImplementedError
+
+        for c in old:
+            if 'oxpID' in c.attrib:
+                child_object = Object.objects.get(oxpid=c.attrib['oxpID'])
+                if child_object.in_file == file_obj:
+                    child_xml = new.xpath("*[@oxpID='%s']" % c.attrib['oxpID'])[0]
+                else:
+                    child_file = child_object.in_file
+                    child_xml = etree.fromstring(child_file.xml).getroot()
+                    if child_xml.attrib['oxpID'] == c.attrib['oxpID']:
+                        child_file.delete()
+                    else:
+                        child_xml = child_xml.xpath(".//*[@oxpID='%s']" % oxpID)
+                        child_xml.getparent().remove(child_xml)
+                c.getparent().replace(c, child_xml)
+
+        file_obj.xml = etree.tostring(old)
+        file_obj.user = None
+        obj.modified = False
+
+        file_obj.save()
+        obj.save()
+
+        return HttpResponseSeeOther(reverse('core:detail-revert', args=[new_oxpid]))
