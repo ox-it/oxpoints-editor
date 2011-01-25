@@ -42,7 +42,7 @@ class AuthedView(BaseView):
 class EditingView(BaseView):
     def __call__(self, request, *args, **kwargs):
         if not request.user.is_authenticated():
-            return HttpResponseSeeOther(reverse(settings.LOGIN_URL))
+            return HttpResponseSeeOther('%s?%s' % (settings.LOGIN_URL, urllib.urlencode({'next':request.get_full_path()})))
         elif not request.user.has_perm('core.change_object'):
             response = self.render(request, {}, 'insufficient-privileges')
             response.status_code = 403
@@ -461,19 +461,33 @@ class HelpView(BaseView):
 
 class RevertView(BaseView):
     def initial_context(self, request, oxpid):
+        obj = get_object_or_404(Object, oxpid=oxpid)
+        file_obj = obj.in_file
+        try:
+            old = etree.fromstring(file_obj.initial_xml).xpath("descendant-or-self::*[@oxpID='%s']" % oxpid)[0]
+        except (etree.XMLSyntaxError, IndexError):
+            old = None
+        new = etree.fromstring(file_obj.xml).xpath("descendant-or-self::*[@oxpID='%s']" % oxpid)[0]
         return {
-            'obj': get_object_or_404(Object, oxpid=oxpid)
+            'obj': obj,
+            'old': old,
+            'new': new,
+            'editable': not (obj.user and obj.user != request.user),
+            'done': request.GET.get('done') == 'true',
         }
 
     def handle_GET(self, request, context, oxpid):
         return self.render(request, context, 'revert')
 
     def handle_POST(self, request, context, oxpid):
+        if not context['editable']:
+            return HttpResponseBadRequest()
+        obj, old, new = map(context.get, ['obj', 'old', 'new'])
         file_obj = obj.in_file
-        try:
-            old = etree.fromstring(file_obj.initial_xml).xpath("descendant-or-self::*[@oxpID='%s']" % oxpid)[0]
-            new = etree.fromstring(file_obj.xml).xpath("descendant-or-self::*[@oxpID='%s']" % oxpid)[0]
-        except IndexError:
+
+        if old is None:
+            file_obj.delete()
+            return HttpResponseSeeOther(reverse('core:detail-revert', args=[oxpid]) + '?done=true')
             raise NotImplementedError
 
         for c in old:
@@ -483,7 +497,9 @@ class RevertView(BaseView):
                     child_xml = new.xpath("*[@oxpID='%s']" % c.attrib['oxpID'])[0]
                 else:
                     child_file = child_object.in_file
-                    child_xml = etree.fromstring(child_file.xml).getroot()
+                    child_object.in_file = file_obj
+                    child_object.save()
+                    child_xml = etree.fromstring(child_file.xml)
                     if child_xml.attrib['oxpID'] == c.attrib['oxpID']:
                         child_file.delete()
                     else:
@@ -498,4 +514,4 @@ class RevertView(BaseView):
         file_obj.save()
         obj.save()
 
-        return HttpResponseSeeOther(reverse('core:detail-revert', args=[new_oxpid]))
+        return HttpResponseSeeOther(reverse('core:detail-revert', args=[oxpid]) + '?done=true')

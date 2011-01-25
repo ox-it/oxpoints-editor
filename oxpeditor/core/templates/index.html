@@ -2,12 +2,6 @@
 
 {% block body %}
 
-<p>Welcome to the OxPoints editor.</p>
-
-<p>It supports editing most aspects of the dataset; for more complex changes you should <a href="{% url core:request %}">contact the OxPoints team</a>.</p>
-
-<p>This tool is available to be used by IT Support Staff at the University of Oxford.</p>
-
 {% if user.is_authenticated %}
 {% if not perms.core.change_object %}
 <div class="errors">
@@ -15,7 +9,15 @@
 </div>
 {% endif %}
 {% else %}
-<p>Proceed to <a href="{% url webauth:login %}">log in</a>.</p>
+<div class="note">
+<p>Before you can edit OxPoints, you'll need to <a href="{% url webauth:login %}">log in</a>.</p>
+</div>
 {% endif %}
+
+<p>Welcome to the OxPoints editor.</p>
+
+<p>It supports editing most aspects of the dataset; for more complex changes you should <a href="{% url core:request %}">contact the OxPoints team</a>.</p>
+
+<p>This tool is available to be used by IT Support Staff at the University of Oxford.</p>
 
 {% endblock %}

@@ -10,7 +10,7 @@ urlpatterns = patterns('',
     (r'^commit/$', CommitView(), {}, 'commit'),
     (r'^request/$', RequestView(), {}, 'request'),
     (r'^(?P<oxpid>\d{8})/$', DetailView(), {}, 'detail'),
-    (r'^(?P<oxpid>\d{8})/tree/$', TreeView(), {}, 'detail-tree'),
+    (r'^(?P<oxpid>\d{8}(,\d{8})*)/tree/$', TreeView(), {}, 'detail-tree'),
     (r'^(?P<oxpid>\d{8})/revert/$', RevertView(), {}, 'detail-revert'),
     
     (r'^create/$', CreateView(), {}, 'create'),

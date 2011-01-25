@@ -65,6 +65,9 @@ $(function () {
       Contains {{ object.get_descendant_count }} entit{{ object.get_descendant_count|pluralize:"y,ies" }}.
       <a href="{% url core:detail-tree object.oxpid %}">View contained</a>.
       <a href="{% url core:detail-tree object.get_root.oxpid %}">View whole tree from {{ object.get_root.title|default:"<em>unnamed</em>" }}</a>.
+{% if editable and object.modified %}
+      <a href="{% url core:detail-revert object.oxpid %}">Revert pending changes</a>.
+{% endif %}
     </p>
 
 {% if editable %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<h1>Revert <em>{{ obj.title }}</em></h1>
+
+{% if done %}
+<div class="note">
+<p>Your changes have been successfully reverted.</p>
+</div>
+{% endif %}
+
+{% if editable and obj.modified %}
+
+<form method="post" action=".">
+<input type="submit" value="Revert"/>
+</form>
+
+{% endif %}
+
+{% if not done and not obj.modified %}
+<p>This entity hasn't been modified.</p>
+{% endif %}
+
+{% if not editable and obj.modified %}
+<p>This entity is currently being edited by <strong>{{ obj.user.first_name }} {{ obj.user.last_name }} ({{ obj.user.username }})</strong> and cannot be reverted.</p>
+{% endif %}
+
+<p><a href="{% url core:detail obj.oxpid %}">Return to editing <em>{{ obj.title }}</em></a>.</p>
+
+
+
+
+{% endblock %}

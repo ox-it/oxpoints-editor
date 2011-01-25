@@ -81,7 +81,7 @@ class LocationForm(forms.Form):
     def serialize(self, cd, obj):
         l = etree.Element('location')
         g = etree.SubElement(l, 'geo')
-        g.text = ' '.join([cd['longiture'], cd['latitude']])
+        g.text = '%f %f' % (cd['longitude'], cd['latitude'])
         return l   
 
     max_num = 1
