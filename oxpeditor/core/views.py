@@ -58,6 +58,10 @@ class CommitView(EditingView):
     def initial_context(self, request):
         return {
             'form': CommitForm(request.POST or None),
+            'done': request.GET.get('done') == 'true',
+            'successful': Object.objects.filter(oxpid__in=request.GET.get('successful','').split(',')),
+            'unsuccessful': Object.objects.filter(oxpid__in=request.GET.get('unsuccessful','').split(',')),
+            'modified': Object.objects.filter(user=request.user, modified=True),
         }
 
     def handle_GET(self, request, context):
@@ -69,7 +73,7 @@ class CommitView(EditingView):
 
         to_commit = set(File.objects.filter(user=request.user))
         edited = defaultdict(set)
-        for obj in Object.objects.filter(user=request.user, modified=True):
+        for obj in context['modified']:
             edited[obj.in_file].add(obj.oxpid)
             
         with svn_lock():

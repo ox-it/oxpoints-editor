@@ -78,17 +78,47 @@ body > section {
 
 body > section section {
   display:block;
-  border:1px solid #888;
-  padding:1em;
-  margin:1em 0;
-  -moz-border-radius:5px;
+  border-top:1px solid #888;
+  padding:1em 0;
+  margin:1em 0 0 0;
+  clear:both;
   -webkit-border-radius:5px;
   -moz-break-inside:avoid;
   break-inside:avoid;
 }
 
-body > section section h2 {
+body > section section header {
+  width:240px;
+  float:left;
+}
+
+body > section section header h2 {
   margin-top:0;
+  margin-bottom:5px;
+}
+
+body > section section header p {
+  font-size:9pt;
+  color:#444;
+  margin:0;
+}
+
+
+
+body > section section h3 {
+  margin-top:0
+}
+
+body > section section > div, body > section section > table {
+    margin-left:250px;
+}
+
+body > section section textarea {
+    width:100%;
+}
+
+body > section section input[type=text] {
+    width:400px;
 }
 
 #sec-rela tions {

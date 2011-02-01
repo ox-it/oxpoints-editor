@@ -36,6 +36,7 @@ $(function () {
 
 {% block body %}
     
+<div >
 
 {% if has_errors %}
     <div class="errors">
@@ -86,11 +87,17 @@ $(function () {
 </div>
 {% endif %}
 
-      <div style="-moz-column-count:2; clear:both">
+      <div style="">
 
 {% if forms.NameForm %}
       <section{% if forms.NameForm.errors|any %} class="has_errors"{% endif %}>
-        <h2>Names</h2>
+        <header>
+          <h2>Names</h2>
+          <p>An entity can have various names associated with it. There should be
+             one preferred name and at most one sort name. Alternate names are
+             official alternatives, including abbreviations. Hidden names are
+             commonly used unofficial names, including nicknames.</p>
+        </header>
 
         <table>
           <thead>
@@ -121,7 +128,10 @@ $(function () {
 
 {% if forms.DescriptionForm %}
       <section{% if forms.DescriptionForm.errors|any %} class="has_errors"{% endif %}>
-        <h2>Description</h2>
+        <header>
+          <h2>Description</h2>
+          <p>A plain-text description of this object.</p>
+        </header>
 
 {% for form in forms.DescriptionForm.forms %}
 {% if form.errors %}
@@ -130,14 +140,18 @@ $(function () {
         </div>
 {% endif %}
               {{ form.path }}
+              <div>
               {{ form.description }}
+              </div>
 {% endfor %}
       </section>
 {% endif %}
 
 {% if forms.IDNoForm %}
       <section{% if forms.IDNoForm.errors|any %} class="has_errors"{% endif %}>
-        <h2>Identifiers</h2>
+        <header>
+          <h2>Identifiers</h2>
+        </header>
   
         <table>
           <thead>
@@ -162,7 +176,9 @@ $(function () {
 
 {% if forms.AddressForm %}
       <section{% if forms.AddressForm.errors|any %} class="has_errors"{% endif %}>
-        <h2>Addresses</h2>
+        <header>
+          <h2>Address</h2>
+        </header>
   
 {% for form in forms.AddressForm.forms %}
 {% if form.errors %}
@@ -198,7 +214,9 @@ $(function () {
 
 {% if forms.URLForm %}
       <section{% if forms.URLForm.errors|any %} class="has_errors"{% endif %}>
-        <h2>URLs</h2>
+        <header>
+          <h2>URLs</h2>
+        </header>
   
         <table>
           <thead>
@@ -223,7 +241,9 @@ $(function () {
 
 {% if forms.LocationForm %}
       <section{% if forms.LocationForm.errors|any %} class="has_errors"{% endif %}>
-        <h2>Location</h2>
+        <header>
+          <h2>Location</h2>
+        </header>
 
 {% for form in forms.LocationForm.forms %}
         {{ form.path }}
@@ -245,8 +265,11 @@ $(function () {
 {% endif %}
 
       <section id="sec-relations">
-        <h2>Relations</h2>
+        <header>
+          <h2>Relations</h2>
+        </header>
         
+        <div>
         {% for relation_group in relations %}
         
         <div>
@@ -269,6 +292,7 @@ $(function () {
         </div>
         
         {% endfor %}
+        </div>
           
       </section>
       </div>
@@ -303,5 +327,7 @@ $(function () {
 
     </form>
 {% endif %}
+
+</div>
 
 {% endblock %}

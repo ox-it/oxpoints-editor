@@ -6,13 +6,69 @@
 
 <h1>Commit changes</h1>
 
+{% if done %}
+
+{% if successful and not unsuccessful %}
+<div class="note">
+  <p>Your changes have been successfully committed and should be live within the next few minutes.</p>
+{% else %}
+{% if successful and unsuccessful %}
+<div class="warning">
+  <p>Your changes were only partially committed. Those that were successful should be live within the next few minutes.</p>
+{% else %}
+<div class="errors">
+  <p>None of your changes have been successfully committed.</p>
+{% endif %}
+  <p>Failures are normally the result of conflicts will edits made outside the editor. Don't worry, you don't need to do
+     anything; the OxPoints team have been informed and should have everything back to normal soon.</p>
+{% endif %}
+
+{% if successful %}
+<p>The following object{{ successful|pluralize:" was,s were" }} modified successfully:</p>
+<ul>
+{% for obj in successful %}
+  <li><a href="{{ obj.get_absolute_url }}">{{ obj.title }}</a> ({{ obj.type }})</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% if unsuccessful %}
+<p>The following object{{ successful|pluralize:" was,s were" }} not modified successfully:</p>
+<ul>
+{% for obj in unsuccessful %}
+  <li><a href="{{ obj.get_absolute_url }}">{{ obj.title }}</a> ({{ obj.type }})</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+</div>
+  
+{% endif %}
+
+{% if modified %}
+
+<p>The following objects have outstanding changes:</p>
+
+<ul>
+{% for obj in modified %}
+  <li><a href="{{ obj.get_absolute_url }}">{{ obj.title }}</a> ({{ obj.type }})</li>
+{% endfor %}
+</ul>
+
+<p>To commit changes made to these objects, please provide a textual description of the changes you have made:</p> 
+
 <form method="post" action=".">
-  <p>{{ form.message.label_tag }}</p>
   {{ form.message }}
 
   <p>
     <input type="submit" value="Commit"/>
   </p>
 </form>
+
+{% else %}
+
+<p>There are no outstanding changes to commit.</p>
+
+{% endif %}
 
 {% endblock %}
