@@ -429,7 +429,7 @@ class CreateView(EditingView):
     def handle_POST(self, request, context, oxpid=None):
         form, parent = context['form'], context['parent']
         if not form.is_valid():
-            return self.handle_POST(request, context, oxpid)
+            return self.handle_GET(request, context, oxpid)
             
         ptype, title, dt_from = map(form.cleaned_data.get, ['type', 'title', 'dt_from'])
         
