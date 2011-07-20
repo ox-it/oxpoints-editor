@@ -37,6 +37,16 @@ URL_TYPE_CHOICES = (
     ('liburl', 'Library'),
 )
 
+SPACE_CONFIGURATION_CHOICES = (
+    ('Boardroom', 'Boardroom'),
+    ('UShape', 'U-Shape'),
+    ('Banquet', 'Banquet'),
+    ('Cabaret', 'Cabaret'),
+    ('Reception', 'Reception'),
+    ('Theatre', 'Theatre'),
+    ('Classroom', 'Classroom'),
+)
+
 PLACES = ('Room', 'Building', 'Space', 'Site', 'OpenSpace', 'Carpark')
 ORGS = ('University', 'Unit', 'StudentGroup', 'Department', 'Faculty',
         'Division', 'Organization', 'College', 'Hall', 'Library',
