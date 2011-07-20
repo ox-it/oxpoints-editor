@@ -123,11 +123,11 @@ UPDATE_TYPE_CHOICES = (
 
 class UpdateTypeForm(forms.Form):
     update_type = forms.ChoiceField(choices=UPDATE_TYPE_CHOICES, widget=forms.RadioSelect)
-    when = forms.CharField(widget=forms.DateInput, required=False)
+    when = forms.DateField(required=False)
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        if cleaned_data.get('update_type') == 'correct':
+        if cleaned_data.get('update_type') != 'update':
             cleaned_data['when'] = None
         else:
             if not cleaned_data['when']:
