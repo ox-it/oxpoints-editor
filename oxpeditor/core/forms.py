@@ -7,7 +7,7 @@ from django import forms
 from django.forms.formsets import formset_factory, BaseFormSet
 from django.forms.util import ErrorDict
 
-from .models import IDNO_SCHEME_CHOICES, URL_TYPE_CHOICES
+from .models import IDNO_SCHEME_CHOICES, URL_TYPE_CHOICES, SPACE_CONFIGURATION_CHOICES
 from .utils import date_filter
 from .xslt import transform
 import data_model
@@ -44,16 +44,17 @@ class IDNoForm(forms.Form):
         return n
 
 class SpaceConfigurationForm(forms.Form):
+    path = forms.CharField(required=False, widget=forms.HiddenInput)
     type = forms.ChoiceField(choices=SPACE_CONFIGURATION_CHOICES)
     capacity = forms.IntegerField(required=False)
     comment = forms.CharField(required=False)
 
     def serialize(self, cd, obj):
         n = etree.Element('trait', nsmap=nsmap, type='configuration', subtype=cd['type'])
-        if n.get('capacity'):
+        if cd.get('capacity'):
             capacity = etree.SubElement(n, 'note', type='capacity')
             capacity.text = unicode(cd['capacity'])
-        if n.get('comment'):
+        if cd.get('comment'):
             capacity = etree.SubElement(n, 'note', type='comment')
             capacity.text = cd['comment']
         return n

@@ -38,6 +38,7 @@ URL_TYPE_CHOICES = (
 )
 
 SPACE_CONFIGURATION_CHOICES = (
+    ('', '-'*20),
     ('Boardroom', 'Boardroom'),
     ('UShape', 'U-Shape'),
     ('Banquet', 'Banquet'),
@@ -45,6 +46,7 @@ SPACE_CONFIGURATION_CHOICES = (
     ('Reception', 'Reception'),
     ('Theatre', 'Theatre'),
     ('Classroom', 'Classroom'),
+    ('ComputerLaboratory', 'Computer laboratory'),
 )
 
 PLACES = ('Room', 'Building', 'Space', 'Site', 'OpenSpace', 'Carpark')

@@ -220,9 +220,12 @@ $(function () {
 {% endif %}
 
 {% if forms.SpaceConfigurationForm %}
-      <section{% if forms.SpaceConfigurationForm.errors|any %} class="has_errors"{% endif %}?
+      <section{% if forms.SpaceConfigurationForm.errors|any %} class="has_errors"{% endif %}>
         <header>
-          <h2>Space configurations</h2>
+          <h2>Configurations</h2>
+          <p>The configurations, or layouts, available for a space. Most will
+             only have one, but some rooms can be rearranged, with each
+             arrangement having a different capacity.</p>
         </header>
 
         <table>
