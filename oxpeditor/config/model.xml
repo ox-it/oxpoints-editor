@@ -25,7 +25,10 @@
       <label>finance code</label>
     </identifier>
     <identifier name="olis" types="Library SubLibrary">
-      <label>OLIS code</label>
+      <label>OLIS code (old)</label>
+    </identifier>
+    <identifier name="olis-aleph" types="Library SubLibrary Department Faculty College Hall">
+      <label>OLIS Aleph code</label>
     </identifier>
     <identifier name="obn" types="Building Room">
       <label>estates code</label>

@@ -14,6 +14,8 @@ import data_model
 
 DATE_REGEX = r"""\d{1,4}(-\d{2}(-\d{2})?)?"""
 
+nsmap = {None: 'http://www.tei-c.org/ns/1.0'}
+
 class NameForm(forms.Form):
     path = forms.CharField(required=False, widget=forms.HiddenInput)
     value = forms.CharField(required=True)
@@ -39,6 +41,21 @@ class IDNoForm(forms.Form):
     def serialize(self, cd, obj):
         n = etree.Element('idno', nsmap={None: 'http://www.tei-c.org/ns/1.0'}, type=cd['scheme'])
         n.text = cd['value']
+        return n
+
+class SpaceConfigurationForm(forms.Form):
+    type = forms.ChoiceField(choices=SPACE_CONFIGURATION_CHOICES)
+    capacity = forms.IntegerField(required=False)
+    comment = forms.CharField(required=False)
+
+    def serialize(self, cd, obj):
+        n = etree.Element('trait', nsmap=nsmap, type='configuration', subtype=cd['type'])
+        if n.get('capacity'):
+            capacity = etree.SubElement(n, 'note', type='capacity')
+            capacity.text = unicode(cd['capacity'])
+        if n.get('comment'):
+            capacity = etree.SubElement(n, 'note', type='comment')
+            capacity.text = cd['comment']
         return n
 
 class AddressForm(forms.Form):

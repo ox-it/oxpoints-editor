@@ -219,6 +219,36 @@ $(function () {
       </section>
 {% endif %}
 
+{% if forms.SpaceConfigurationForm %}
+      <section{% if forms.SpaceConfigurationForm.errors|any %} class="has_errors"{% endif %}?
+        <header>
+          <h2>Space configurations</h2>
+        </header>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Delete?</th>
+              <th>Type</th>
+              <th>Capacity</th>
+              <th>Comment</th>
+            </tr>
+          </thead>
+          <tbody>
+{% for form in forms.SpaceConfigurationForm.forms %}
+            <tr>
+              <td>{{ form.DELETE }}{{ form.path }}</td>
+              <td>{{ form.type }}{{ form.errors.type }}</td>
+              <td>{{ form.capacity }}{{ form.errors.capacity }}</td>
+              <td>{{ form.comment }}{{ form.errors.comment }}</td>
+            </tr>
+{% endfor %}
+          </tbody>
+        </table>
+      </section>
+{% endif %}
+
+
 {% if forms.URLForm %}
       <section{% if forms.URLForm.errors|any %} class="has_errors"{% endif %}>
         <header>

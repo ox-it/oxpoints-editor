@@ -36,6 +36,9 @@
         <xsl:if test="tei:place">
           <form-type name="LocationForm"/>
         </xsl:if>
+        <xsl:if test="*[@type='Room' | @type='Space' | tei:trait[@type='type']/text() = 'Room' | tei:trait[@type='type']/text() = 'Space']">
+          <form-type name="SpaceConfigurationForm"/>
+        </xsl:if>
       </form-types>
       <xsl:apply-templates select="tei:org | tei:place"/>
     </forms>
@@ -138,6 +141,22 @@
         </description>
       </form>
     </xsl:for-each>
+
+    <xsl:for-each select="tei:trait[@type='configuration]">
+      <form name="SpaceConfigurationForm">
+        <xsl:call-template name="path-attribute"/>
+        <type>
+          <xsl:value-of select="@subtype"/>
+        </type>
+        <capacity>
+          <xsl:value-of select="note[@type='capacity']"/>
+        </capacity>
+        <comment>
+          <xsl:value-of select="note[@type='comment']"/>
+        </comment>
+      </form>
+    </xsl:for-each>
+        
 
   </xsl:template>
 </xsl:stylesheet>
