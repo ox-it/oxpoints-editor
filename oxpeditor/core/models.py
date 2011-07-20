@@ -223,6 +223,7 @@ class Object(MPTTModel):
             return Object.objects.filter(constraint, pk=self.pk).count() == 1
         else:
             return Object.objects.filter(pk=self.pk, **constraint).count() == 1
+
             
     @property
     def child_relations(self):
@@ -241,6 +242,29 @@ class Object(MPTTModel):
     @property
     def type_description(self):
         return data_model.Type.for_name(self.type)
+
+    def get_grouped_relations(self):
+        for name, relation in data_model.Relation.items():
+            if not name:
+                continue
+            yield (relation.forward, True, self.active_relations.filter(type=name).order_by('passive__sort_title'))
+            yield (relation.backward, False, self.passive_relations.filter(type=name).order_by('active__sort_title'))
+
+# Add some handy properties to our model for use from templates.
+for name, label in RELATION_TYPE_CHOICES:
+    if not name:
+        continue
+    for direction in ('active', 'passive'):
+        def f(name, direction):
+            def g(self): return getattr(self, '%s_relations' % direction).filter(type=name)
+            g.__name__ = '%s_%s' % (name, direction)
+            return g
+        g = f(name, direction)
+        setattr(Object, g.__name__, g)
+del f
+#raise Exception(Object.controls_passive)
+
+
 
 class Relation(models.Model):
     user = models.ForeignKey(User, null=True, blank=True)

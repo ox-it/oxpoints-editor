@@ -207,6 +207,14 @@ section.has_errors {
   padding-left:0;
 }
 
+table.list {
+  border-collapse: collapse;
+}
+
+table.list td {
+  padding:2px;
+}
+
 table.diff {
   width:100%;
   border-collapse:collapse;

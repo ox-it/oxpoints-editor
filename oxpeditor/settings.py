@@ -13,7 +13,7 @@ DEBUG = config.get('main', 'debug', 'false') == 'true'
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('OxPoints RT Queue', 'alexander.dutton@oucs.ox.ac.uk'),
+    ('OxPoints RT Queue', 'oxpoints@oucs.ox.ac.uk'),
     # ('Your Name', 'your_email@domain.com'),
 )
 
@@ -124,3 +124,7 @@ EMAIL_HOST_USER = config.get('email', 'user')
 EMAIL_HOST_PASSWORD = config.get('email', 'password')
 SERVER_EMAIL = 'oxpoints@opendata.nsms.ox.ac.uk'
 DEFAULT_FROM_EMAIL = 'oxpoints@oucs.ox.ac.uk'
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 36000
+

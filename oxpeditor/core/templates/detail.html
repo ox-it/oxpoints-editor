@@ -50,11 +50,15 @@ $(function () {
         <li><a href="{% url core:detail-create object.oxpid %}">Add a new sub-entity</a></li>
 {% endif %}
 {% ifequal object.root_elem "org" %}
+<!--
         <li>This unit has been disbanded</li>
         <li>This unit has moved location</li>
+-->
 {% endifequal %}
 {% ifequal object.root_elem "place" %}
+<!--
         <li>This place no longer exists</li>
+-->
 {% endifequal %}
       </ul>
     </aside>
@@ -62,13 +66,16 @@ $(function () {
 
     <h1>{{ object.title }} <small>({{ object.oxpid }}, {{ object.type }})</small></h1>
 
-    <p>
-      Contains {{ object.get_descendant_count }} entit{{ object.get_descendant_count|pluralize:"y,ies" }}.
-      <a href="{% url core:detail-tree object.oxpid %}">View contained</a>.
-      <a href="{% url core:detail-tree object.get_root.oxpid %}">View whole tree from {{ object.get_root.title|default:"<em>unnamed</em>" }}</a>.
 {% if editable and object.modified %}
-      <a href="{% url core:detail-revert object.oxpid %}">Revert pending changes</a>.
+    <p>  <a href="{% url core:detail-revert object.oxpid %}">Revert pending changes</a>. {% ifnotequal user object.user %}Currently being edited by {{ object.user.first_name }} {{ object.user.last_name }} ({{ object.user.username }}).{% endifnotequal %}</p>
 {% endif %}
+
+
+    <p>
+{% for ancestor in object.get_ancestors.all %}
+      <a href="{{ ancestor.get_absolute_url }}">{{ ancestor.title }}</a> (<a href="{% url core:detail-tree ancestor.oxpid %}">{{ ancestor.get_descendant_count }}</a>) &#187;
+{% endfor %}
+      {{ object.title }} (<a href="{% url core:detail-tree object.oxpid %}">{{ object.get_descendant_count }}</a>)
     </p>
 
 {% if editable %}
@@ -292,6 +299,28 @@ $(function () {
         </div>
         
         {% endfor %}
+
+          <table>
+            <tbody>
+              {% for label, is_forward, relations in object.get_grouped_relations %}
+              {% if relations.count %}
+              <tr>
+                <th style="white-space:nowrap; font-weight:normal; text-align:left; vertical-align:top">{{ label }}</th>
+                <td>
+                  {% for relation in relations %}
+                    {% if is_forward %}
+                    <a href="{{ relation.passive.get_absolute_url }}">{{ relation.passive.sort_title }}</a>
+                    {% else %}
+                    <a href="{{ relation.active.get_absolute_url }}">{{ relation.active.sort_title }}</a>
+                    {% endif %}
+                    {% if not forloop.last %} &#8226; {% endif %}
+                  {% endfor %}
+                </td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+            </table>
+          </table>
         </div>
           
       </section>

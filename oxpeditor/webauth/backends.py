@@ -7,7 +7,6 @@ from django.contrib.auth.models import User, Group, UNUSABLE_PASSWORD
 
 class WebauthBackend(object):
     def authenticate(self, username):
-        l = os.environ['USER']
         os.environ['KRB5CCNAME'] = '/tmp/krb5cc_1006'
         user, _ = User.objects.get_or_create(username=username, defaults={'password': UNUSABLE_PASSWORD})
         

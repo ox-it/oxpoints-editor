@@ -146,6 +146,8 @@ class ListView(EditingView):
                  objects = getattr(objects, 'filter' if request.GET[n] != 'yes' else 'exclude')(**{'idno_%s' % n: ''})
         if 'sort' in request.GET:
              objects = objects.order_by(*request.GET['sort'].split(','))
+        if request.GET.get('user') == 'true':
+             objects = objects.filter(user__isnull=False)
         today = date.today().strftime('%Y-%m-%d')
         objects = (o for o in objects if not (o.dt_to and o.dt_to <= today))
         seen, filtered_objects = set(), []
@@ -240,7 +242,7 @@ class DetailView(EditingView):
             'passive_relations': obj.passive_relations.order_by('type', 'active__sort_title').select_related('active'),
             'relations': relations,
             'update_type_form': UpdateTypeForm(request.POST or None),
-            'editable': 'to' not in xml.attrib or (obj.user and obj.user != request.user),
+            'editable': ('to' not in xml.attrib and not (obj.user and obj.user != request.user)) or request.user.is_superuser,
         }
 
     def handle_GET(self, request, context, oxpid):

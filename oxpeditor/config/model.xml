@@ -6,6 +6,7 @@
     <relation name="supplies" forward="supplies"         backward="is supplied by"/>
     <relation name="primary"  forward="has primary site" backward="is primary site of"/>
     <relation name="controls" forward="has sub-unit"     backward="is sub-unit of"/>
+    <relation name="upstream_of" forward="upstream of" backward="downstream of"/>
   </relations>
   
   <relation-sets>
@@ -28,6 +29,9 @@
     </identifier>
     <identifier name="obn" types="Building Room">
       <label>estates code</label>
+    </identifier>
+    <identifier name="rae" types="University">
+      <label>RAE code</label>
     </identifier>
     <identifier name="ucas-institution" types="University">
       <label>UCAS institution code</label>
@@ -105,7 +109,7 @@
       </relations>
     </type>
     
-    <type name="Organization" root_element="org" may_create="false">
+    <type name="Organization" root_element="org">
       <label>organization</label>
       <relations>
         <relation-set name="occupation"/>
@@ -150,12 +154,18 @@
         <relation-set name="occupation"/>
       </relations>
     </type>
-    
+
+    <type name="Place" root_element="place" may_create="false">
+      <label>place</label>
+      <relations>
+        <relation name="contains" passive="Site Building OpenSpace Carpark" child="true"/>
+      </relations>
+    </type>
     
     <type name="Site" root_element="place">
       <label>site</label>
       <relations>
-        <relation name="contains" passive="Building OpenSpace Carpark" child="true"/>
+        <relation name="contains" passive="Room Space Site Building OpenSpace Carpark" child="true"/>
       </relations>
     </type>
     
@@ -194,10 +204,10 @@
       <label>outside</label>
     </type>
     
-    <type name="Meter" root_element="object">
+    <type name="Measure" root_element="object">
       <label>meter</label>
       <relations>
-        <relation name="supplies" passive="Meter" child="true"/>
+        <relation name="upstream_of" passive="Meter" child="true"/>
         <relation name="supplies" passive="Site Building Space Room"/>
       </relations>
     </type>
@@ -205,6 +215,7 @@
     <type name="WAP" root_element="object">
       <label>wireless access point</label>
     </type>
+
   
   </types>
 </oxpeditor-model>
