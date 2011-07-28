@@ -156,8 +156,7 @@ class File(models.Model):
                                     type=relation_type)
             if relation_type in ('controls', 'contains'):
                 if relation.passive.parent != relation.active:
-                    relation.passive.parent = relation.active
-                    relation.passive.save()
+                    relation.passive.move_to(relation.active)
 
             if not relation.pk or relation.inferred != inferred or relation.in_file != self:
                 relation.inferred = inferred
@@ -169,8 +168,7 @@ class File(models.Model):
         for r in Relation.objects.filter(in_file=self):
             if (r.active.oxpid, r.passive.oxpid, r.type) not in seen_ids:
                 if r.type in ('controls', 'contains'):
-                    r.passive.parent = None
-                    r.passive.save()
+                    r.passive.move_to(None)
                 r.delete()
 
     def delete(self, *args, **kwargs):

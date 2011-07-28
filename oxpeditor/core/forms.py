@@ -130,9 +130,10 @@ class UpdateTypeForm(forms.Form):
         if cleaned_data.get('update_type') != 'update':
             cleaned_data['when'] = None
         else:
-            if not cleaned_data['when']:
+            if not cleaned_data.get('when'):
                 self._errors['when'] = self.error_class(['You must specify a date on which these changes took place'])
-                del cleaned_data['when']
+                if 'when' in cleaned_data:
+                    del cleaned_data['when']
         return cleaned_data
 
 class CommitForm(forms.Form):

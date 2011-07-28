@@ -266,6 +266,8 @@ class DetailView(EditingView):
             return self.handle_GET(request, context, oxpid)
 
         new_from = context['update_type_form'].cleaned_data['when']
+        if new_from:
+            new_from = new_from.strftime('%Y-%m-%d')
 
         additions, removals, replacements = [], [], []
 
