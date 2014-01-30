@@ -76,7 +76,8 @@ class RelationWrangler(object):
                 split_relation = True
                 break
         else:
-            raise AssertionError
+            split_relation = False
+            pass#raise AssertionError
         
         if split_relation:
             del elem.attrib['type']

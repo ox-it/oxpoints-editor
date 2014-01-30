@@ -4,8 +4,10 @@
 
 {% block extra_head %}
 <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}autoSuggest.css"/>
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}leaflet.css"/>
 <script type="text/javascript" src="{{ MEDIA_URL }}jquery-1.4.1.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}jquery.autoSuggest.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}leaflet.js"></script>
 <script type="text/javascript">
 $(function () {
   $('input.autosuggest').each(function(i, e) {
@@ -29,6 +31,62 @@ $(function () {
       startText: "Select and type to add",
       asHtmlID: e.attr('name').replace(/^relall-/, ''),
       preFill: preFill});
+  });
+
+  $('.location-form').each(function() {
+    var getCoordinates = function() {
+      var latitude = form.find('.latitude input').val(),
+          longitude = form.find('.longitude input').val();
+      if (latitude && longitude)
+          return [parseFloat(latitude), parseFloat(longitude)];
+      else
+          return null;
+    };
+    var updateMap = function() {
+      coords = getCoordinates();
+      if (coords && !marker)
+        createMarker();
+      else if (!coords && marker)
+        destroyMarker();
+      else if (coords) {
+        marker.setLatLng(coords);
+        map.panTo(coords);
+      }
+    };
+    var updateForm = function(ev) {
+      var latlng = ev.latlng || ev.target._latlng;
+      form.find('.latitude input').val(Math.round(latlng.lat * 1e6) / 1e6);
+      form.find('.longitude input').val(Math.round(latlng.lng * 1e6) / 1e6);
+      coords = getCoordinates();
+    };
+    var createMarker = function() {
+       marker = L.marker(coords, {draggable: true}).addTo(map).on('drag', updateForm).on('contextmenu', function(ev) {
+         form.find('table input').val('');
+         destroyMarker();
+       });
+    };
+    var destroyMarker = function() {
+       map.removeLayer(marker);
+       marker = undefined;
+    };
+    
+    var form = $(this);
+    var marker;
+    var coords = getCoordinates();
+    form.find('input').bind('change', updateMap);
+    
+    var map = L.map(form.find('.detail-map').get(0)).setView(coords || [51.753, -1.252], 15).on('click', function(ev) {
+      if (marker) return;
+      updateForm(ev);
+      createMarker();
+    });
+    L.tileLayer('https://static.data.ox.ac.uk/osm-tiles/{z}/{x}/{y}.png', {
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+        maxZoom: 18
+    }).addTo(map);
+  
+    if (coords)
+        createMarker();
   });
 });
 </script>
@@ -286,20 +344,29 @@ $(function () {
         </header>
 
 {% for form in forms.LocationForm.forms %}
+      <div class="location-form">
         {{ form.path }}
+        <div class="detail-map" style="float:right; width:300px; height:300px"></div>
         <table>
           <tbody>
-            <tr>
+            <tr class="latitude">
               <th>{{ form.latitude.label_tag }}</th>
               <td>{{ form.latitude }}</td>
               <td>{{ form.errors.latitude }}</td>
-            </tr><tr>
+            </tr><tr class="longitude">
               <th>{{ form.longitude.label_tag }}</th>
               <td>{{ form.longitude }}</td>
               <td>{{ form.errors.longitude }}</td>
             </tr>
           </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">Click the map to set a new location, or drag the marker if there is already a location recorded. Right-click the marker to clear the location.</td>
+            </tr>
+          </tfoot>
         </table>
+        <div style="clear:both"></div>
+      </div>
 {% endfor %}
       </section>
 {% endif %}

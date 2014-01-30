@@ -1,18 +1,21 @@
 <oxpeditor-model>
   <relations>
-    <relation name="occupies" forward="occupies"         backward="is occupied by"/>
-    <relation name="contains" forward="contains"         backward="is contained by"/>
-    <relation name="owns"     forward="owns"             backward="is owned by"/>
-    <relation name="supplies" forward="supplies"         backward="is supplied by"/>
-    <relation name="primary"  forward="has primary site" backward="is primary site of"/>
-    <relation name="controls" forward="has sub-unit"     backward="is sub-unit of"/>
-    <relation name="upstream_of" forward="upstream of" backward="downstream of"/>
+    <relation name="occupies"  forward="occupies"         backward="is occupied by"/>
+    <relation name="contains"  forward="contains"         backward="is contained by"/>
+    <relation name="owns"      forward="owns"             backward="is owned by"/>
+    <relation name="supplies"  forward="supplies"         backward="is supplied by"/>
+    <relation name="primary"   forward="has primary site" backward="is primary site of"/>
+    <relation name="controls"  forward="has sub-unit"     backward="is sub-unit of"/>
+    <relation name="reception" forward="has reception"    backward="is reception for"/>
   </relations>
   
   <relation-sets>
     <relation-set name="occupation">
       <relation name="occupies" passive="Site Building Space Room"/>
       <relation name="primary" passive="Site Building Space Room" max_cardinality="1"/>
+    </relation-set>
+    <relation-set name="reception">
+      <relation name="reception" passive="Space Room" max_cardinality="1"/>
     </relation-set>
   </relation-sets>
 
@@ -23,6 +26,12 @@
     </identifier>
     <identifier name="finance" types="Division Department Faculty Unit Library">
       <label>finance code</label>
+    </identifier>
+    <identifier name="department" types="Division Department Faculty Unit Library">
+      <label>department code</label>
+    </identifier>
+    <identifier name="division" types="Division">
+      <label>division code</label>
     </identifier>
     <identifier name="olis" types="Library SubLibrary">
       <label>OLIS code (old)</label>
@@ -54,10 +63,46 @@
     <identifier name="jiscmu" types="University College Hall">
       <label>JISC Monitoring Unit identifier</label>
     </identifier>
-    <identifier name="twitter" types="University Department Faculty Division College Hall StudentGroup Organization">
+    <identifier name="twitter" types="Library University Department Faculty Division College Hall StudentGroup Organization">
       <label>Twitter account name</label>
     </identifier>
-    <identifier name="nexus" types="Room">
+    <identifier name="youtube" types="Library University Department Faculty Division College Hall StudentGroup Organization">
+      <label>YouTube channel name</label>
+    </identifier>
+    <identifier name="facebook" types="Library University Department Faculty Division College Hall StudentGroup Organization">
+      <label>Facebook page name</label>
+    </identifier>
+    <identifier name="github" types="Library University Department Faculty Division College Hall StudentGroup Organization">
+      <label>GitHub account name</label>
+    </identifier>
+    <identifier name="linkedin" types="Library University Department Faculty Division College Hall StudentGroup Organization">
+      <label>LinkedIn company account name</label>
+    </identifier>
+    <identifier name="flickr" types="Library University Department Faculty Division College Hall StudentGroup Organization">
+      <label>Flickr account name</label>
+    </identifier>
+    <identifier name="delicious" types="Library University Department Faculty Division College Hall StudentGroup Organization">
+      <label>Delicious account name</label>
+    </identifier>
+    <identifier name="pinterest" types="Library University Department Faculty Division College Hall StudentGroup Organization">
+      <label>Pinterest account name</label>
+    </identifier>
+    <identifier name="slideshare" types="Library University Department Faculty Division College Hall StudentGroup Organization">
+      <label>Slideshare account name</label>
+    </identifier>
+    <identifier name="googleplus" types="Library University Department Faculty Division College Hall StudentGroup Organization">
+      <label>Google+ account name</label>
+    </identifier>
+    <identifier name="librarything" types="Library SubLibrary">
+      <label>LibraryThing profile name</label>
+    </identifier>
+    <identifier name="worldcat" types="Library SubLibrary">
+      <label>WorldCat profile name</label>
+    </identifier>
+    <identifier name="library-data-id" types="Library SubLibrary">
+      <label>LibraryData ID</label>
+    </identifier>
+    <identifier name="nexus" types="Room Space">
       <label>Nexus resource account</label>
     </identifier>
   </identifiers>
@@ -67,7 +112,7 @@
     <type name="University" root_element="org" may_create="false">
       <label>university</label>
       <relations>
-        <relation name="controls" passive="Division" child="true"/>
+        <relation name="controls" passive="Division Department" child="true"/>
         <relation name="owns"     passive="Building Site"/>
       </relations>
     </type>
@@ -83,7 +128,14 @@
     <type name="Department" root_element="org">
       <label>department</label>
       <relations>
-        <relation name="controls" passive="Department Unit Library" child="true"/>
+        <relation name="controls" passive="Department Unit Library Group" child="true"/>
+        <relation-set name="occupation"/>
+      </relations>
+    </type>
+
+    <type name="Group" root_element="org">
+      <label>group</label>
+      <relations>
         <relation-set name="occupation"/>
       </relations>
     </type>
@@ -91,15 +143,15 @@
     <type name="Faculty" root_element="org">
       <label>faculty</label>
       <relations>
-        <relation name="controls" passive="Unit Library" child="true"/>
+        <relation name="controls" passive="Unit Library Department" child="true"/>
         <relation-set name="occupation"/>
       </relations>
     </type>
     
-    <type name="Unit" root_element="org" may_create="false">
+    <type name="Unit" root_element="org">
       <label>unit</label>
       <relations>
-        <relation name="controls" passive="Unit Library" child="true"/>
+        <relation name="controls" passive="Unit Library Department Group" child="true"/>
         <relation-set name="occupation"/>
       </relations>
     </type>
@@ -169,6 +221,7 @@
       <label>site</label>
       <relations>
         <relation name="contains" passive="Room Space Site Building OpenSpace Carpark" child="true"/>
+        <relation-set name="reception"/>
       </relations>
     </type>
     
@@ -177,6 +230,7 @@
       <relations>
         <relation name="contains" passive="Space Room" child="true"/>
         <relation name="contains" passive="Meter WAP"/>
+        <relation-set name="reception"/>
       </relations>
     </type>
     
@@ -185,6 +239,7 @@
       <relations>
         <relation name="contains" passive="Space Room" child="true"/>
         <relation name="contains" passive="Meter WAP"/>
+        <relation-set name="reception"/>
       </relations>
     </type>
     

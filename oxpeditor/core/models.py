@@ -35,6 +35,8 @@ URL_TYPE_CHOICES = (
     ('iturl', 'IT Support'),
     ('weblearn', 'WebLearn'),
     ('liburl', 'Library'),
+    ('weblog', 'Blog'),
+    ('weblog-index', 'Blog index'),
 )
 
 SPACE_CONFIGURATION_CHOICES = (

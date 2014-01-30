@@ -37,7 +37,7 @@ def perform_commit(user, message):
 
     message_file, message_filename = tempfile.mkstemp()
     try:
-        os.write(message_file, message)
+        os.write(message_file, message.encode('utf-8'))
         os.close(message_file)
     
         for i in range(5):

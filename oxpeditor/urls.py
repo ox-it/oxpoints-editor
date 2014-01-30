@@ -7,10 +7,10 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Example:
-    (r'^', include('oxpeditor.core.urls', namespace='core')),
-    (r'^webauth/', include('oxpeditor.webauth.urls', namespace='webauth')),
+    (r'^editor/', include('oxpeditor.core.urls', namespace='core')),
+    (r'^editor/webauth/', include('oxpeditor.webauth.urls', namespace='webauth')),
 
-    (r'^admin/', include(admin.site.urls)),
+    (r'^editor/admin/', include(admin.site.urls)),
 )
 
 if settings.DEBUG:
