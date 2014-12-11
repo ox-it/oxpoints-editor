@@ -1,0 +1,4 @@
+build
+dist
+oxpeditor.egg-info
+*.pyc
