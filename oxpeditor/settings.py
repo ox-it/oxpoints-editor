@@ -108,7 +108,7 @@ INSTALLED_APPS = (
 REPO_PATH = os.path.join(ROOT, 'oxpoints-data')
 SERVER_NAME = 'oxpoints.oucs.ox.ac.uk'
 
-LOGIN_URL = '/webauth/login/'
+LOGIN_URL = '/editor/webauth/login/'
 
 AUTHENTICATION_BACKENDS = (
     'oxpeditor.webauth.backends.WebauthBackend',
@@ -122,7 +122,7 @@ EMAIL_HOST = 'smtp.ox.ac.uk'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = config.get('email', 'user')
 EMAIL_HOST_PASSWORD = config.get('email', 'password')
-SERVER_EMAIL = 'oxpoints@opendata.nsms.ox.ac.uk'
+SERVER_EMAIL = 'blackhole@ox.ac.uk'
 DEFAULT_FROM_EMAIL = 'oxpoints@oucs.ox.ac.uk'
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

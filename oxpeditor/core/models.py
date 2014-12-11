@@ -36,6 +36,7 @@ URL_TYPE_CHOICES = (
     ('weblearn', 'WebLearn'),
     ('liburl', 'Library'),
     ('weblog', 'Blog'),
+    ('equiv', 'Same as (e.g. DBPedia)'),
     ('weblog-index', 'Blog index'),
 )
 

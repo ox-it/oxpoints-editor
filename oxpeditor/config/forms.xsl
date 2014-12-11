@@ -71,6 +71,21 @@
             <xsl:text>on</xsl:text>
           </xsl:if>
         </type_hidden>
+        <type_short>
+          <xsl:if test="contains(@type, 'short')">
+            <xsl:text>on</xsl:text>
+          </xsl:if>
+        </type_short>
+        <type_acronym>
+          <xsl:if test="contains(@type, 'acronym')">
+            <xsl:text>on</xsl:text>
+          </xsl:if>
+        </type_acronym>
+        <type_map>
+          <xsl:if test="contains(@type, 'map') and self::tei:placeName">
+            <xsl:text>on</xsl:text>
+          </xsl:if>
+        </type_map>
               
       </form>
     </xsl:for-each>
@@ -132,6 +147,17 @@
         </ptype>
       </form>
     </xsl:for-each>
+
+<!--
+    <xsl:for-each select="tokenize(@equiv, '\s+')">
+      <form name="URLForm" path="@equiv[{position()}]">
+        <url>
+          <xsl:value-of select="."/>
+        </url>
+        <ptype>equiv</ptype>
+      </form>
+    </xsl:for-each>
+-->
 
     <xsl:for-each select="tei:desc">
       <form name="DescriptionForm">

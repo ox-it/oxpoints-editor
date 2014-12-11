@@ -129,12 +129,14 @@ $(function () {
 {% endif %}
 
 
+{% comment %}
     <p>
 {% for ancestor in object.get_ancestors.all %}
       <a href="{{ ancestor.get_absolute_url }}">{{ ancestor.title }}</a> (<a href="{% url core:detail-tree ancestor.oxpid %}">{{ ancestor.get_descendant_count }}</a>) &#187;
 {% endfor %}
       {{ object.title }} (<a href="{% url core:detail-tree object.oxpid %}">{{ object.get_descendant_count }}</a>)
     </p>
+{% endcomment %}
 
 {% if editable %}
     <form method="post" action=".">
@@ -173,6 +175,9 @@ $(function () {
               <th>Sort?</th>
               <th>Alternate?</th>
               <th>Hidden?</th>
+              <th>Short?</th>
+              <th>Acronym?</th>{% if object.root_elem == "place" %}
+              <th>Map?</th>{% endif %}
             </tr>
           </thead>
           <tbody>
@@ -184,6 +189,9 @@ $(function () {
               <td>{{ form.type_sort }}</td>
               <td>{{ form.type_alternate }}</td>
               <td>{{ form.type_hidden }}</td>
+              <td>{{ form.type_short }}</td>
+              <td>{{ form.type_acronym }}</td>{% if object.root_elem == "place" %}
+              <td>{{ form.type_map }}</td>{% endif %}
             </tr>
 {% endfor %}
           </tbody>

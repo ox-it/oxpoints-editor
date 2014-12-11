@@ -289,6 +289,8 @@ class DetailView(EditingView):
                continue
 
             new = form.serialize(cleaned_data, context['object'])
+#            if not new:
+#                continue
 
             if old is not None:
                 replacements.append((old, new))

@@ -15,7 +15,7 @@
       <relation name="primary" passive="Site Building Space Room" max_cardinality="1"/>
     </relation-set>
     <relation-set name="reception">
-      <relation name="reception" passive="Space Room" max_cardinality="1"/>
+      <relation name="reception" passive="Building Space Room" max_cardinality="1"/>
     </relation-set>
   </relation-sets>
 
@@ -30,8 +30,11 @@
     <identifier name="department" types="Division Department Faculty Unit Library">
       <label>department code</label>
     </identifier>
+    <identifier name="babylon-division" types="Division">
+      <label>division code (registration)</label>
+    </identifier>
     <identifier name="division" types="Division">
-      <label>division code</label>
+      <label>division code (PRAS)</label>
     </identifier>
     <identifier name="olis" types="Library SubLibrary">
       <label>OLIS code (old)</label>
@@ -54,6 +57,15 @@
     <identifier name="ukrlp-ukprn" types="University">
       <label>UK Register of Learning Providers Number</label>
     </identifier>
+    <identifier name="isni" types="University">
+      <label>ISNI</label>
+    </identifier>
+    <identifier name="viaf" types="University">
+      <label>VIAF</label>
+    </identifier>
+    <identifier name="charity" types="College Hall University Department">
+      <label>charity number</label>
+    </identifier>
     <identifier name="edubase-urn" types="University">
       <label>Edubase URN</label>
     </identifier>
@@ -71,6 +83,9 @@
     </identifier>
     <identifier name="facebook" types="Library University Department Faculty Division College Hall StudentGroup Organization">
       <label>Facebook page name</label>
+    </identifier>
+    <identifier name="livestream" types="Library University Department Faculty Division College Hall StudentGroup Organization">
+      <label>Livestream account name</label>
     </identifier>
     <identifier name="github" types="Library University Department Faculty Division College Hall StudentGroup Organization">
       <label>GitHub account name</label>
@@ -105,6 +120,12 @@
     <identifier name="nexus" types="Room Space">
       <label>Nexus resource account</label>
     </identifier>
+    <identifier name="foursquare" types="Building Site Room Space">
+      <label>FourSquare identifier</label>
+    </identifier>
+    <identifier name="ringgold" types="Library University Department Faculty Division College Hall StudentGroup Organization">
+      <label>RingGold ID</label>
+    </identifier>
   </identifiers>
 
 
@@ -128,7 +149,7 @@
     <type name="Department" root_element="org">
       <label>department</label>
       <relations>
-        <relation name="controls" passive="Department Unit Library Group" child="true"/>
+        <relation name="controls" passive="Department Unit Library Group DTC" child="true"/>
         <relation-set name="occupation"/>
       </relations>
     </type>
@@ -151,7 +172,7 @@
     <type name="Unit" root_element="org">
       <label>unit</label>
       <relations>
-        <relation name="controls" passive="Unit Library Department Group" child="true"/>
+        <relation name="controls" passive="Unit Library Department Group DTC" child="true"/>
         <relation-set name="occupation"/>
       </relations>
     </type>
@@ -210,6 +231,13 @@
       </relations>
     </type>
 
+    <type name="DTC" root_element="org">
+      <label>DTC</label>
+      <relations>
+        <relation-set name="occupation"/>
+      </relations>
+    </type>
+
     <type name="Place" root_element="place" may_create="false">
       <label>place</label>
       <relations>
@@ -227,6 +255,15 @@
     
     <type name="Building" root_element="place">
       <label>building</label>
+      <relations>
+        <relation name="contains" passive="Space Room BuildingPart" child="true"/>
+        <relation name="contains" passive="Meter WAP"/>
+        <relation-set name="reception"/>
+      </relations>
+    </type>
+
+    <type name="BuildingPart" root_element="place">
+      <label>building part</label>
       <relations>
         <relation name="contains" passive="Space Room" child="true"/>
         <relation name="contains" passive="Meter WAP"/>

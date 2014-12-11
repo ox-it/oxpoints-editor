@@ -23,10 +23,15 @@ class NameForm(forms.Form):
     type_sort = forms.BooleanField(required=False)
     type_alternate = forms.BooleanField(required=False)
     type_hidden = forms.BooleanField(required=False)
+    type_short = forms.BooleanField(required=False)
+    type_acronym = forms.BooleanField(required=False)
+    type_map = forms.BooleanField(required=False)
 
     def serialize(self, cd, obj):
         types = set()
-        for t in ('preferred', 'sort', 'alternate', 'hidden'):
+        for t in ('preferred', 'sort', 'alternate', 'hidden', 'short', 'acronym', 'map'):
+            if t == 'map' and obj.root_elem != 'place':
+                continue
             if cd.get('type_%s' % t):
                 types.add(t)
         n = etree.Element(obj.root_elem + 'Name', nsmap={None: 'http://www.tei-c.org/ns/1.0'}, type=' '.join(types))
@@ -86,10 +91,13 @@ class URLForm(forms.Form):
     ptype = forms.ChoiceField(choices=URL_TYPE_CHOICES)
 
     def serialize(self, cd, obj):
-        r = etree.Element('trait', nsmap={None: 'http://www.tei-c.org/ns/1.0'}, type=cd['ptype'])
-        n = etree.SubElement(r, 'desc')
-        n = etree.SubElement(n, 'ptr', target=cd['url'])
-        return r
+        if cd['ptype'] == 'equiv':
+            pass
+        else:
+            r = etree.Element('trait', nsmap={None: 'http://www.tei-c.org/ns/1.0'}, type=cd['ptype'])
+            n = etree.SubElement(r, 'desc')
+            n = etree.SubElement(n, 'ptr', target=cd['url'])
+            return r
 
 class LocationForm(forms.Form):
     path = forms.CharField(required=False, widget=forms.HiddenInput)
