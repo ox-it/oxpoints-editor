@@ -4,10 +4,12 @@ import os
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
 
-DEBUG = False
+DEBUG = os.environ.get('DEBUG') == 'true'
 TEMPLATE_DEBUG = DEBUG
 
+FROM_ADDRESS = os.environ['FROM_ADDRESS']
 NOTIFY_ADDRESS = os.environ['NOTIFY_ADDRESS']
+PREFIX = os.environ.get('PREFIX', '/')
 
 ADMINS = (
     ('OxPoints RT Queue', NOTIFY_ADDRESS),
@@ -22,12 +24,9 @@ DATABASES = {
    },
 }
 
-DATABASE_ENGINE = 'postgresql_psycopg2'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'oxpeditor'   # Or path to database file if using sqlite3.
-DATABASE_USER = 'oxpeditor'             # Not used with sqlite3.
-DATABASE_PASSWORD = config.get('database', 'password')         # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
+ALLOWED_HOSTS = ['*']
+
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -52,25 +51,10 @@ USE_I18N = True
 # Example: "/home/media/media.lawrence.com/"
 MEDIA_ROOT = ''
 
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash if there is a path component (optional in other cases).
-# Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = '/site-media/'
-
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/admin-media/'
+STATIC_URL = PREFIX + 'static/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'u4y$mvh=+g^twh+ropxb1djfyojkvgjwvogxb)-h70p)a9uotl'
-
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.load_template_source',
-    'django.template.loaders.app_directories.load_template_source',
-#     'django.template.loaders.eggs.load_template_source',
-)
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -87,10 +71,10 @@ TEMPLATE_DIRS = (
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.core.context_processors.auth",
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.contrib.auth.context_processors.auth",
     "oxpeditor.core.context_processors.core",
 )
 
@@ -118,15 +102,12 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-SVN_USER = config.get('svn', 'user')
-SVN_PASSWORD = config.get('svn', 'password')
+SVN_USER = os.environ['SVN_USER']
+SVN_PASSWORD = os.environ['SVN_PASSWORD']
 
-EMAIL_HOST = 'smtp.ox.ac.uk'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = config.get('email', 'user')
-EMAIL_HOST_PASSWORD = config.get('email', 'password')
-SERVER_EMAIL = 'blackhole@ox.ac.uk'
-DEFAULT_FROM_EMAIL = 'oxpoints@oucs.ox.ac.uk'
+EMAIL_HOST = os.environ['SMTP_SERVER']
+SERVER_EMAIL = FROM_ADDRESS
+DEFAULT_FROM_EMAIL = NOTIFY_ADDRESS
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 36000

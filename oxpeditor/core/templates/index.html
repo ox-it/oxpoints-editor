@@ -5,18 +5,18 @@
 {% if user.is_authenticated %}
 {% if not perms.core.change_object %}
 <div class="errors">
-<p>You don't have sufficient privileges to edit OxPoints directly. If you wish you can <a href="{% url core:request %}">request a change or that you be allowed to edit</a>.</p>
+<p>You don't have sufficient privileges to edit OxPoints directly. If you wish you can <a href="{% url "core:request" %}">request a change or that you be allowed to edit</a>.</p>
 </div>
 {% endif %}
 {% else %}
 <div class="note">
-<p>Before you can edit OxPoints, you'll need to <a href="{% url webauth:login %}">log in</a>.</p>
+<p>Before you can edit OxPoints, you'll need to <a href="{% url "webauth:login" %}">log in</a>.</p>
 </div>
 {% endif %}
 
 <p>Welcome to the OxPoints editor.</p>
 
-<p>It supports editing most aspects of the dataset; for more complex changes you should <a href="{% url core:request %}">contact the OxPoints team</a>.</p>
+<p>It supports editing most aspects of the dataset; for more complex changes you should <a href="{% url "core:request" %}">contact the OxPoints team</a>.</p>
 
 <p>This tool is available to be used by IT Support Staff at the University of Oxford.</p>
 

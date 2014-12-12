@@ -281,7 +281,7 @@ del f
 
 class Relation(models.Model):
     user = models.ForeignKey(User, null=True, blank=True)
-    inferred = models.BooleanField()
+    inferred = models.BooleanField(default=None, null=False)
     in_file = models.ForeignKey(File)
 
     active = models.ForeignKey(Object, related_name="active_relations")

@@ -3,12 +3,12 @@ import os
 import re
 
 from django.conf import settings
-from django.contrib.auth.models import User, Group, UNUSABLE_PASSWORD
+from django.contrib.auth.models import User, Group
 
 class WebauthBackend(object):
     def authenticate(self, username):
         os.environ['KRB5CCNAME'] = '/tmp/krb5cc_1006'
-        user, _ = User.objects.get_or_create(username=username, defaults={'password': UNUSABLE_PASSWORD})
+        user, _ = User.objects.get_or_create(username=username, defaults={'password': None})
         
         auth = ldap.sasl.gssapi('')
         oakldap = ldap.initialize('ldap://ldap.oak.ox.ac.uk:389')

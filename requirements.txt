@@ -1,2 +1,6 @@
 Django
+django-conneg
+django-mptt
 lxml
+psycopg2
+python-ldap

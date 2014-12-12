@@ -1,10 +1,12 @@
 import os
+import pkg_resources
 
 from lxml import etree
 
 from django.conf import settings
 
-model = etree.parse(os.path.join(settings.CONFIG_PATH, 'model.xml')).getroot()
+with pkg_resources.resource_stream('oxpeditor', 'config/model.xml') as f:
+    model = etree.parse(f).getroot()
 
 def as_choices(xs, attr='label'):
     return (('', '-'*20),) + tuple(sorted(((x.name, getattr(x, attr)) for x in xs), key=lambda x:x[1].lower()))

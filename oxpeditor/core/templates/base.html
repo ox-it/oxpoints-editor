@@ -2,26 +2,26 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en-gb">
   <head>
     <title>{% block title %}OxPoints Editor{% endblock %}</title>
-    <link rel="stylesheet" href="{{ MEDIA_URL }}base.css" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}base.css" type="text/css"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     {% block extra_head %}{% endblock %}
   </head>
 
   <body>
     <header>
-      <p><a href="{% url core:index %}">OxPoints Editor</a></p>
+      <p><a href="{% url "core:index" %}">OxPoints Editor</a></p>
       <div class="topright">
       <small style="margin:0.2em 0;">
 {% if user.is_authenticated %}
         Logged in as <em>{{ user.first_name }} {{ user.last_name }}</em> ({{ user.username }}).
-        <a href="{% url webauth:logout %}">Log out</a>
+        <a href="{% url "webauth:logout" %}">Log out</a>
 {% else %}
-        <a href="{% url webauth:login %}">Log in</a>
+        <a href="{% url "webauth:login" %}">Log in</a>
 {% endif %}
       </small>
 {% if perms.core.change_object %}
 <br/>
-        <form method="get" action="{% url core:list %}">
+        <form method="get" action="{% url "core:list" %}">
           <input name="q"/>
           <input type="submit" value="Search"/>
         </form>
@@ -32,20 +32,20 @@
     <nav>
 {% if perms.core.change_object %}
       <ul>
-        <li><a href="{% url core:index %}">Home</a></li>
-        <li><a href="{% url core:list %}">List</a></li>
-        <li><a href="{% url core:list %}">Map</a></li>
-        <li><a href="{% url core:tree %}">Organisational Tree</a></li>
-        <li><a href="{% url core:create %}">Create</a></li>
-        <li><a href="{% url core:diff %}">Diff</a></li>
+        <li><a href="{% url "core:index" %}">Home</a></li>
+        <li><a href="{% url "core:list" %}">List</a></li>
+        <li><a href="{% url "core:list" %}">Map</a></li>
+        <li><a href="{% url "core:tree" %}">Organisational Tree</a></li>
+        <li><a href="{% url "core:create" %}">Create</a></li>
+        <li><a href="{% url "core:diff" %}">Diff</a></li>
         <li>
-          <a href="{% url core:commit %}">Commit changes</a>
+          <a href="{% url "core:commit" %}">Commit changes</a>
           {% if pending_commit %}
             <em>({{ pending_commit }} change{{ pending_commit|pluralize }} pending)</em>
           {% endif %}
         </li>
-        <li><a href="{% url core:help %}">Help</a></li>
-        <li><a href="{% url core:request %}">Request complex change</a></li>
+        <li><a href="{% url "core:help" %}">Help</a></li>
+        <li><a href="{% url "core:request" %}">Request complex change</a></li>
       </ul>
 {% if recent %}
       <ul class="recent">

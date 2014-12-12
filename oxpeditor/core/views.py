@@ -23,9 +23,10 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseBadRequest, Http404
 from django.conf import settings
 from django.db import connection
+from django.utils.decorators import method_decorator
+from django_conneg.http import HttpResponseSeeOther
+from django_conneg.views import HTMLView, JSONView
 
-from oxpeditor.utils.views import BaseView
-from oxpeditor.utils.http import HttpResponseSeeOther
 from .models import Object, Relation, File, NS
 from . import forms
 from .xslt import transform
@@ -35,12 +36,13 @@ from .forms import get_forms, UpdateTypeForm, CommitForm, RequestForm, CreateFor
 from .relation import RelationWrangler
 from . import data_model
 
-class AuthedView(BaseView):
-    def __call__(self, *args, **kwargs):
-        return login_required(super(AuthedView, self).__call__)(*args, **kwargs)
+class AuthedMixin(object):
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(AuthedView, self).dispatch(request, *args, **kwargs)
 
-class EditingView(BaseView):
-    def __call__(self, request, *args, **kwargs):
+class EditingMixin(object):
+    def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated():
             return HttpResponseSeeOther('%s?%s' % (settings.LOGIN_URL, urllib.urlencode({'next':request.get_full_path()})))
         elif not request.user.has_perm('core.change_object'):
@@ -48,14 +50,17 @@ class EditingView(BaseView):
             response.status_code = 403
             return response
         else:
-            return super(EditingView, self).__call__(request, *args, **kwargs)
+            return super(EditingView, self).dispatch(request, *args, **kwargs)
 
-class IndexView(BaseView):
-    def handle_GET(self, request, context):
-        return self.render(request, context, 'index')
+class IndexView(HTMLView):
+    template_name = 'index'
+    def get(self, request):
+        return self.render()
 
-class CommitView(EditingView):
-    def initial_context(self, request):
+class CommitView(EditingMixin, HTMLView):
+    template_name = 'commit'
+
+    def get_initial_context(self, request):
         return {
             'form': CommitForm(request.POST or None),
             'done': request.GET.get('done') == 'true',
@@ -64,10 +69,12 @@ class CommitView(EditingView):
             'modified': Object.objects.filter(user=request.user, modified=True),
         }
 
-    def handle_GET(self, request, context):
-        return self.render(request, context, 'commit')
+    def get(self, request):
+        self.context.update(self.get_initial_context())
+        return self.render()
 
-    def handle_POST(self, request, context):
+    def post(self, request):
+        self.context.update(self.get_initial_context())
         if not context['form'].is_valid():
             return self.handle_GET(request, context)
 
@@ -86,8 +93,10 @@ class CommitView(EditingView):
             'unsuccessful': ','.join(chain(*(edited[f] for f in unsuccessful))),
         }))            
 
-class DiffView(EditingView):
-    def initial_context(self, request):
+class DiffView(EditingMixin, HTMLView):
+    template_name = 'diff'
+
+    def get_initial_context(self, request):
         edited = File.objects.filter(user=request.user)
 
         objects, sm = [], difflib.SequenceMatcher()
@@ -131,11 +140,14 @@ class DiffView(EditingView):
             'files': objects,
         }
         
-    def handle_GET(self, request, context):
-        return self.render(request, context, 'diff')
+    def get(self, request):
+        self.context.update(self.get_initial_context())
+        return self.render()
 
-class ListView(EditingView):
-    def initial_context(self, request):
+class ListView(EditingMixin, HTMLView):
+    template_name = 'list'
+
+    def get_initial_context(self, request):
         objects = Object.objects.all() #.order_by('-user')
         if 'type' in request.GET:
              objects = objects.filter(type=request.GET['type'])
@@ -163,13 +175,14 @@ class ListView(EditingView):
              'types': sorted(set(o.type for o in Object.objects.all())),
         }
 
-    def handle_GET(self, request, context):
-        return self.render(request, context, 'list')
+    def get(self, request):
+        self.context.update(self.get_initial_context())
+        return self.render()
 
+class TreeView(EditingMixin, HTMLView):
+    template_name = 'tree'
+    root_elem = None
 
-    
-
-class TreeView(EditingView):
     def walk_tree(self, it, obj):
         obj.final = False
         if obj.rght == obj.lft + 1:
@@ -187,11 +200,7 @@ class TreeView(EditingView):
             if child.rght == obj.rght - 1:
                 return max(1, obj.height)
 
-    def __init__(self, root_elem=None):
-        self.root_elem = root_elem
-        super(TreeView, self).__init__()
-
-    def initial_context(self, request, oxpid=None):
+    def get_initial_context(self, request, oxpid=None):
         if oxpid:
             roots = Object.objects.filter(oxpid__in=oxpid.split(","))
             objects = list(chain(*(root.get_descendants(include_self=True) for root in roots)))
@@ -209,10 +218,11 @@ class TreeView(EditingView):
             'root': root,
         }
 
-    def handle_GET(self, request, context, oxpid=None):
-        return self.render(request, context, 'tree')
+    def get(self, request, oxpid=None):
+        self.context.update(self.get_initial_context(oxpid))
+        return self.render()
 
-class DetailView(EditingView):
+class DetailView(EditingMixin, HTMLView):
     def initial_context(self, request, oxpid):
         try:
             obj = Object.objects.get(oxpid=oxpid, user__isnull=False)
@@ -355,7 +365,7 @@ class DetailView(EditingView):
                 
         rw.save()
 
-class RequestView(AuthedView):
+class RequestView(AuthedMixin, HTMLView):
     def initial_context(self, request):
         return {
             'form': RequestForm(request.POST or None, request.FILES or None),
@@ -395,7 +405,7 @@ class RequestView(AuthedView):
 
         return HttpResponseSeeOther(reverse('core:request') + '?sent=true')
 
-class AutoSuggestView(EditingView):
+class AutoSuggestView(EditingMixin, JSONView):
     def initial_context(self, request, active_type, relation_name):
         active_type = data_model.Type.for_name(active_type, None)
         if not active_type:
@@ -413,7 +423,7 @@ class AutoSuggestView(EditingView):
         return self.render_json(request, context, None)
 
 
-class CreateView(EditingView):
+class CreateView(EditingMixin, HTMLView):
     def initial_context(self, request, oxpid=None):
         if oxpid:
             parent = get_object_or_404(Object, oxpid=oxpid)
@@ -465,11 +475,12 @@ class CreateView(EditingView):
         
         return HttpResponseSeeOther(reverse('core:detail', args=[new_oxpid]))
             
-class HelpView(BaseView):
+class HelpView(HTMLView):
+    template_name = 'help'
     def handle_GET(self, request, context):
-        return self.render(request, context, 'help')
+        return self.render()
 
-class RevertView(BaseView):
+class RevertView(EditingMixin, HTMLView):
     def initial_context(self, request, oxpid):
         obj = get_object_or_404(Object, oxpid=oxpid)
         file_obj = obj.in_file

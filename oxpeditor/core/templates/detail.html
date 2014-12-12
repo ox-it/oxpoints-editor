@@ -3,11 +3,11 @@
 {% block title %}{{ object.title }}{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}autoSuggest.css"/>
-<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}leaflet.css"/>
-<script type="text/javascript" src="{{ MEDIA_URL }}jquery-1.4.1.js"></script>
-<script type="text/javascript" src="{{ MEDIA_URL }}jquery.autoSuggest.js"></script>
-<script type="text/javascript" src="{{ MEDIA_URL }}leaflet.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}autoSuggest.css"/>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}leaflet.css"/>
+<script type="text/javascript" src="{{ STATIC_URL }}jquery-1.4.1.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}jquery.autoSuggest.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}leaflet.js"></script>
 <script type="text/javascript">
 $(function () {
   $('input.autosuggest').each(function(i, e) {

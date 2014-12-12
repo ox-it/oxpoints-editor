@@ -1,8 +1,9 @@
 from inspect import isfunction
-import logging, itertools
+import itertools
 from datetime import datetime, date
+import json
+import logging
 
-import simplejson
 from lxml import etree
 
 from django.db import models
@@ -11,7 +12,7 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse, resolve, NoReverseMatch
 
-logger = logging.getLogger('core.requests')
+logger = logging.getLogger(__name__)
 
 from .http import MediaType
 from .simplify import simplify_value, simplify_model, serialize_to_xml

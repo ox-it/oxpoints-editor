@@ -1,23 +1,23 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 
-from .views import IndexView, DiffView, ListView, TreeView, DetailView, CommitView, RequestView, AutoSuggestView, CreateView, HelpView, RevertView
+from . import views
 
 urlpatterns = patterns('',
-    (r'^$', IndexView(), {}, 'index'),
-    (r'^diff/$', DiffView(), {}, 'diff'),
-    (r'^list/$', ListView(), {}, 'list'),
-    (r'^tree/$', TreeView(root_elem='org'), {}, 'tree'),
-    (r'^commit/$', CommitView(), {}, 'commit'),
-    (r'^request/$', RequestView(), {}, 'request'),
-    (r'^(?P<oxpid>\d{8})/$', DetailView(), {}, 'detail'),
-    (r'^(?P<oxpid>\d{8}(,\d{8})*)/tree/$', TreeView(), {}, 'detail-tree'),
-    (r'^(?P<oxpid>\d{8})/revert/$', RevertView(), {}, 'detail-revert'),
+    (r'^$', views.IndexView.as_view(), {}, 'index'),
+    (r'^diff/$', views.DiffView.as_view(), {}, 'diff'),
+    (r'^list/$', views.ListView.as_view(), {}, 'list'),
+    (r'^tree/$', views.TreeView.as_view(root_elem='org'), {}, 'tree'),
+    (r'^commit/$', views.CommitView.as_view(), {}, 'commit'),
+    (r'^request/$', views.RequestView.as_view(), {}, 'request'),
+    (r'^(?P<oxpid>\d{8})/$', views.DetailView.as_view(), {}, 'detail'),
+    (r'^(?P<oxpid>\d{8}(,\d{8})*)/tree/$', views.TreeView.as_view(), {}, 'detail-tree'),
+    (r'^(?P<oxpid>\d{8})/revert/$', views.RevertView.as_view(), {}, 'detail-revert'),
     
-    (r'^create/$', CreateView(), {}, 'create'),
-    (r'^(?P<oxpid>\d{8})/create/$', CreateView(), {}, 'detail-create'),
+    (r'^create/$', views.CreateView.as_view(), {}, 'create'),
+    (r'^(?P<oxpid>\d{8})/create/$', views.CreateView.as_view(), {}, 'detail-create'),
     
-    (r'^help/$', HelpView(), {}, 'help'),
+    (r'^help/$', views.HelpView.as_view(), {}, 'help'),
 
-    (r'^autosuggest:(?P<active_type>\w+):(?P<relation_name>\w+)/$', AutoSuggestView(), {}, 'autosuggest'),
+    (r'^autosuggest:(?P<active_type>\w+):(?P<relation_name>\w+)/$', views.AutoSuggestView.as_view(), {}, 'autosuggest'),
 
 )
