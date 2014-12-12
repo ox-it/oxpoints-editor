@@ -4,20 +4,23 @@ import os
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
 
-config = ConfigParser.ConfigParser()
-config.read(os.path.join(ROOT, 'config.ini'))
-
-CONFIG_PATH = os.path.join(ROOT, config.get('main', 'config'))
-
-DEBUG = config.get('main', 'debug', 'false') == 'true'
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
+NOTIFY_ADDRESS = os.environ['NOTIFY_ADDRESS']
+
 ADMINS = (
-    ('OxPoints RT Queue', 'oxpoints@oucs.ox.ac.uk'),
-    # ('Your Name', 'your_email@domain.com'),
+    ('OxPoints RT Queue', NOTIFY_ADDRESS),
 )
 
 MANAGERS = ADMINS
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ['DATABASE_NAME'],
+   },
+}
 
 DATABASE_ENGINE = 'postgresql_psycopg2'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
 DATABASE_NAME = 'oxpeditor'   # Or path to database file if using sqlite3.
