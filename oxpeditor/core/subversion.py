@@ -91,7 +91,6 @@ def perform_update(force=False):
         if file_obj.last_modified and file_obj.last_modified >= mtime:
             continue
             
-        updated.add(file_obj)
 
         xml = etree.parse(open(full_path))
         file_obj.initial_xml = etree.tostring(xml)
@@ -104,6 +103,7 @@ def perform_update(force=False):
             file_obj.user = conflict_user
 
         file_obj.save()
+        updated.add(file_obj)
         
     for file_obj in File.objects.all():
         if file_obj.filename not in filenames and not file_obj.user:

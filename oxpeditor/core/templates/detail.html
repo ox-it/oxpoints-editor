@@ -105,7 +105,7 @@ $(function () {
       <h2>Common actions</h2>
       <ul>
 {% if object.child_types %}
-        <li><a href="{% url core:detail-create object.oxpid %}">Add a new sub-entity</a></li>
+        <li><a href="{% url "core:detail-create" object.oxpid %}">Add a new sub-entity</a></li>
 {% endif %}
 {% ifequal object.root_elem "org" %}
 <!--
@@ -125,16 +125,16 @@ $(function () {
     <h1>{{ object.title }} <small>({{ object.oxpid }}, {{ object.type }})</small></h1>
 
 {% if editable and object.modified %}
-    <p>  <a href="{% url core:detail-revert object.oxpid %}">Revert pending changes</a>. {% ifnotequal user object.user %}Currently being edited by {{ object.user.first_name }} {{ object.user.last_name }} ({{ object.user.username }}).{% endifnotequal %}</p>
+    <p>  <a href="{% url "core:detail-revert" object.oxpid %}">Revert pending changes</a>. {% ifnotequal user object.user %}Currently being edited by {{ object.user.first_name }} {{ object.user.last_name }} ({{ object.user.username }}).{% endifnotequal %}</p>
 {% endif %}
 
 
 {% comment %}
     <p>
 {% for ancestor in object.get_ancestors.all %}
-      <a href="{{ ancestor.get_absolute_url }}">{{ ancestor.title }}</a> (<a href="{% url core:detail-tree ancestor.oxpid %}">{{ ancestor.get_descendant_count }}</a>) &#187;
+      <a href="{{ ancestor.get_absolute_url }}">{{ ancestor.title }}</a> (<a href="{% url "core:detail-tree" ancestor.oxpid %}">{{ ancestor.get_descendant_count }}</a>) &#187;
 {% endfor %}
-      {{ object.title }} (<a href="{% url core:detail-tree object.oxpid %}">{{ object.get_descendant_count }}</a>)
+      {{ object.title }} (<a href="{% url "core:detail-tree" object.oxpid %}">{{ object.get_descendant_count }}</a>)
     </p>
 {% endcomment %}
 
@@ -149,7 +149,7 @@ $(function () {
 {% if object.user %}
     <p>This entity is currently being edited by {{ object.user.first_name }} {{ object.user.last_name }} ({{ object.user.username }}).</p>
 {% else %}
-    <p>This entity is no longer active, and so cannot be edited. If OxPoints' historical record of this entity is incorrect, please <a href="{% url core:request %}">tell us about it</a>.</p>
+    <p>This entity is no longer active, and so cannot be edited. If OxPoints' historical record of this entity is incorrect, please <a href="{% url "core:request" %}">tell us about it</a>.</p>
 {% endif %}
 </div>
 {% endif %}
@@ -403,7 +403,7 @@ $(function () {
         <p class="relation-list"><em>Nothing</em></p>
         {% endif %}
         
-        <p><input class="autosuggest" name="reladd-{{ relation_group.name }}" autosuggest="{% url core:autosuggest object.type relation_group.name %}"/></p>
+        <p><input class="autosuggest" name="reladd-{{ relation_group.name }}" autosuggest="{% url "core:autosuggest" object.type relation_group.name %}"/></p>
         </div>
         
         {% endfor %}

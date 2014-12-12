@@ -92,7 +92,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable the admin:
 )
 
-REPO_PATH = os.path.join(ROOT, 'oxpoints-data')
+REPO_PATH = os.environ['OXPOINTS_DATA_CHECKOUT_DIR']
 SERVER_NAME = 'oxpoints.oucs.ox.ac.uk'
 
 LOGIN_URL = '/editor/webauth/login/'

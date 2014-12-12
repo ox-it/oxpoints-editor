@@ -26,7 +26,7 @@
 <p>This entity is currently being edited by <strong>{{ obj.user.first_name }} {{ obj.user.last_name }} ({{ obj.user.username }})</strong> and cannot be reverted.</p>
 {% endif %}
 
-<p><a href="{% url core:detail obj.oxpid %}">Return to editing <em>{{ obj.title }}</em></a>.</p>
+<p><a href="{% url "core:detail" obj.oxpid %}">Return to editing <em>{{ obj.title }}</em></a>.</p>
 
 
 

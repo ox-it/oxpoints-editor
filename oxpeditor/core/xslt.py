@@ -1,11 +1,13 @@
 import os
+import pkg_resources
 
 from lxml import etree
 
 from django.conf import settings
 
 def transform(document, template_name):
-    template = etree.XSLT(etree.parse(os.path.join(settings.CONFIG_PATH, template_name)))
+    with pkg_resources.resource_stream('oxpeditor', 'config/' + template_name) as f:
+        template = etree.XSLT(etree.parse(f))
 
     return template(document)
 
