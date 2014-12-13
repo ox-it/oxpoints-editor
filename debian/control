@@ -1,0 +1,17 @@
+Source: oxpoints-legacy-editor
+Section: python
+Priority: extra
+Maintainer: Alexander Dutton <alexander.dutton@it.ox.ac.uk>
+Build-Depends: debhelper,
+               python,
+               python-setuptools
+Standards-Version: 3.8.4
+Homepage: https://github.com/ox-it/oxpoints-legacy-editor
+Vcs-Git: git://github.com/ox-it/oxpoints-legacy-editor.git
+
+Package: python-oxpoints-legacy-editor
+Section: python
+Depends: ${python:Depends}
+Architecture: all
+Description: Editor for legacy OxPoints
+ Web-based editor for wrangling OxPoints XML files in Subversion.
