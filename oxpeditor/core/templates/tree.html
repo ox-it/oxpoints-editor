@@ -13,7 +13,7 @@
           <a href="{{ object.get_absolute_url }}">{{ object.title|default:"<em>unnamed</em>" }}</a>
           <small>{{ object.type }}</small>
           {% if object.child_types %}
-        <small><a href="{% url core:detail-create object.oxpid %}">Add child</a></small>
+        <small><a href="{% url "core:detail-create" object.oxpid %}">Add child</a></small>
 {% endif %}
        </td>
        {% if object.final and not forloop.last %}
