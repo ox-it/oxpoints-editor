@@ -47,10 +47,6 @@ SITE_ID = 1
 # to load the internationalization machinery.
 USE_I18N = True
 
-# Absolute path to the directory that holds media.
-# Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = ''
-
 STATIC_URL = PREFIX + 'static/'
 
 # Make this unique, and don't share it with anybody.
@@ -102,7 +98,11 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SVN_USER = os.environ['SVN_USER']
-SVN_PASSWORD = os.environ['SVN_PASSWORD']
+try:
+    SVN_PASSWORD = os.environ['SVN_PASSWORD']
+except KeyError:
+    with open(os.environ['SVN_PASSWORD_FILE']) as f:
+        SVN_PASSWORD = f.read()
 
 EMAIL_HOST = os.environ['SMTP_SERVER']
 SERVER_EMAIL = FROM_ADDRESS
