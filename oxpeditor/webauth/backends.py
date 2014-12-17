@@ -7,8 +7,10 @@ from django.contrib.auth.models import User, Group
 
 class WebauthBackend(object):
     def authenticate(self, username):
-        os.environ['KRB5CCNAME'] = '/tmp/krb5cc_1006'
-        user, _ = User.objects.get_or_create(username=username, defaults={'password': None})
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            user = User.objects.create_user(username)
         
         auth = ldap.sasl.gssapi('')
         oakldap = ldap.initialize('ldap://ldap.oak.ox.ac.uk:389')
