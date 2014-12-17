@@ -2,3 +2,10 @@ build
 dist
 oxpeditor.egg-info
 *.pyc
+debian/python-oxpoints-legacy-editor
+debian/files
+debian/python-oxpoints-legacy-editor.debhelper.log
+debian/python-oxpoints-legacy-editor.postinst.debhelper
+debian/python-oxpoints-legacy-editor.prerm.debhelper
+debian/python-oxpoints-legacy-editor.substvars
+
