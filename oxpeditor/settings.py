@@ -9,6 +9,7 @@ TEMPLATE_DEBUG = DEBUG
 
 FROM_ADDRESS = os.environ['FROM_ADDRESS']
 NOTIFY_ADDRESS = os.environ['NOTIFY_ADDRESS']
+STATIC_ROOT = os.environ['STATIC_ROOT']
 PREFIX = os.environ.get('PREFIX', '/')
 
 ADMINS = (
@@ -88,6 +89,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'django.contrib.staticfiles',
     'mptt',
     'oxpeditor.core',
     'oxpeditor.webauth',
