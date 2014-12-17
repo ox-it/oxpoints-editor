@@ -1,10 +1,10 @@
 from django.conf.urls import *
 
-from .views import IndexView, LoginView, LogoutView
+from . import views
 
 urlpatterns = patterns('',
-    (r'^$', IndexView(), {}, 'index'),
-    (r'^login/$', LoginView(), {}, 'login'),
-    (r'^logout/$', LogoutView(), {}, 'logout'),
+    (r'^$', views.IndexView.as_view(), {}, 'index'),
+    (r'^login/$', views.LoginView.as_view(), {}, 'login'),
+    (r'^logout/$', views.LogoutView.as_view(), {}, 'logout'),
 
 )
