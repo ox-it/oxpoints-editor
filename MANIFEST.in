@@ -1,4 +1,4 @@
 recursive-include oxpeditor/core/templates *.html
-recursive-include oxpeditor/static *.*
+recursive-include oxpeditor/core/static *.*
 recursive-include oxpeditor/config *.*
 
