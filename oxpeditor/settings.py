@@ -87,7 +87,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'mptt',
     'oxpeditor.core',
-    'oxpeditor.utils',
     'oxpeditor.webauth',
     # Uncomment the next line to enable the admin:
 )

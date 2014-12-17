@@ -4,9 +4,6 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login, logout
 from django_conneg.views import HTMLView
 
-from oxpeditor.utils.views import BaseView
-from oxpeditor.utils.http import HttpResponseSeeOther
-
 class IndexView(HTMLView):
     pass
 
