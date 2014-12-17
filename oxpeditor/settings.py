@@ -49,8 +49,11 @@ USE_I18N = True
 
 STATIC_URL = PREFIX + 'static/'
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = 'u4y$mvh=+g^twh+ropxb1djfyojkvgjwvogxb)-h70p)a9uotl'
+try:
+    SECRET_KEY = os.environ['SECRET_KEY']
+except KeyError:
+    with open(os.environ['SECRET_KEY_FILE']) as f:
+        SECRET_KEY = f.read()
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
