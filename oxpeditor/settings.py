@@ -28,6 +28,10 @@ ALLOWED_HOSTS = ['*']
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
+CSRF_COOKIE_PATH = PREFIX + '/'
+CSRF_COOKIE_SECURE = True
+FORCE_SCRIPT_NAME = PREFIX
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -93,7 +97,7 @@ INSTALLED_APPS = (
 REPO_PATH = os.environ['OXPOINTS_DATA_CHECKOUT_DIR']
 SERVER_NAME = 'oxpoints.oucs.ox.ac.uk'
 
-LOGIN_URL = '/editor/webauth/login/'
+LOGIN_URL = PREFIX + 'webauth/login/'
 
 AUTHENTICATION_BACKENDS = (
     'oxpeditor.webauth.backends.WebauthBackend',
