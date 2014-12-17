@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login, logout
+from django_conneg.http import HttpResponseSeeOther
 from django_conneg.views import HTMLView
 
 class IndexView(HTMLView):
