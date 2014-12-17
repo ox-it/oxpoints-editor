@@ -2,18 +2,17 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login, logout
+from django_conneg.views import HTMLView
 
 from oxpeditor.utils.views import BaseView
 from oxpeditor.utils.http import HttpResponseSeeOther
 
-class IndexView(BaseView):
+class IndexView(HTMLView):
     pass
 
-class LoginView(BaseView):
-    def handle_GET(self, request, context):
+class LoginView(HTMLView):
+    def get(self, request):
         username = request.META.get('REMOTE_USER')
-        if not username and settings.DEBUG:
-            username = 'kebl2765'
         elif not username:
             raise ImproperlyConfigured('This view is supposed to set a REMOTE_USER environment variable')
 
@@ -22,9 +21,10 @@ class LoginView(BaseView):
 
         return HttpResponseSeeOther(request.GET.get('next', reverse('core:index')))
 
-class LogoutView(BaseView):
-    def handle_GET(self, request, context):
-        logout(request)
+class LogoutView(HTMLView):
+    template_name = 'logout'
 
-        return self.render(request, context, 'logout')
+    def get(self, request):
+        logout(request)
+        return self.render()
 
