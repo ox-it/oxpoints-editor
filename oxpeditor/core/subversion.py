@@ -43,7 +43,8 @@ def perform_commit(user, message):
         for i in range(5):
             ret = subprocess.call(['svn', 'commit', '--username', settings.SVN_USER,
                                                     '--password', settings.SVN_PASSWORD,
-                                                    '-F', message_filename]
+                                                    '-F', message_filename,
+                                                    '--non-interactive']
                                                   + [f.filename for f in to_commit])
             if ret == 0:
                 break
@@ -65,7 +66,8 @@ def perform_commit(user, message):
 def perform_update(force=False):
     os.chdir(settings.REPO_PATH)
 
-    svn_proc = subprocess.Popen(['svn', 'update', '--accept', 'theirs-full'], stdout=subprocess.PIPE)
+    svn_proc = subprocess.Popen(['svn', 'update', '--non-interactive',
+                                                  '--accept', 'theirs-full'], stdout=subprocess.PIPE)
     svn_proc.wait()
 
     svn_updated = svn_proc.stdout.read().splitlines()
