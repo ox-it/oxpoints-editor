@@ -8,6 +8,9 @@ def create_conflict_user(sender, **kwargs):
     if not User.objects.filter(username='conflict').exists():
         User.objects.create_user('conflict')
 
+# Get the contenttypes post_syncdb hook called before ours.
+import django.contrib.contenttypes.management
+
 def allow_itss_editing(sender, **kwargs):
     itss_group, _ = Group.objects.get_or_create(name='itss')
 
