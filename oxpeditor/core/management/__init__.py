@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
+from .. import models
+
 def create_conflict_user(sender, **kwargs):
     User = get_user_model()
     if not User.objects.filter(username='conflict').exists():
@@ -18,6 +20,6 @@ def allow_itss_editing(sender, **kwargs):
     permission = Permission.objects.get(content_type=content_type, codename='change_object')
     itss_group.permissions.add(permission)
 
-post_syncdb.connect(create_conflict_user)
-post_syncdb.connect(allow_itss_editing)
+post_syncdb.connect(create_conflict_user, sender=models)
+post_syncdb.connect(allow_itss_editing, sender=models)
 
