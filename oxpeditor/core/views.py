@@ -431,28 +431,33 @@ class AutoSuggestView(EditingMixin, View):
         return HttpResponse(json.dumps(suggestions, indent=2), content_type='application/json')
 
 class CreateView(EditingMixin, HTMLView):
-    def initial_context(self, request, oxpid=None):
+    template_name = 'create'
+
+    def get_initial_context(self, oxpid=None):
         if oxpid:
             parent = get_object_or_404(Object, oxpid=oxpid)
             if not parent.child_types:
                 raise Http404
-            form = CreateForm(request.POST or None, initial={'dt_from': parent.dt_from}, parent_type=parent.type)
+            form = CreateForm(self.request.POST or None,
+                              initial={'dt_from': parent.dt_from}, parent_type=parent.type)
         else:
             parent = None
-            form = CreateForm(request.POST or None)
+            form = CreateForm(self.request.POST or None)
         
         return {
             'form': form,
             'parent': parent,
         }
     
-    def handle_GET(self, request, context, oxpid=None):
-        return self.render(request, context, 'create')
+    def get(self, request, oxpid=None):
+        self.context.update(self.get_initial_context(oxpid))
+        return self.render()
     
-    def handle_POST(self, request, context, oxpid=None):
-        form, parent = context['form'], context['parent']
+    def post(self, request, oxpid=None):
+        self.context.update(self.get_initial_context(oxpid))
+        form, parent = self.context['form'], self.context['parent']
         if not form.is_valid():
-            return self.handle_GET(request, context, oxpid)
+            return self.get(request, oxpid)
             
         ptype, title, dt_from = map(form.cleaned_data.get, ['type', 'title', 'dt_from'])
         
@@ -484,7 +489,7 @@ class CreateView(EditingMixin, HTMLView):
             
 class HelpView(HTMLView):
     template_name = 'help'
-    def handle_GET(self, request, context):
+    def get(self, request):
         return self.render()
 
 class RevertView(EditingMixin, HTMLView):
