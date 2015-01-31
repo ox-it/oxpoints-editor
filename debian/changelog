@@ -1,8 +1,27 @@
-oxpoints-legacy-editor (0.1.1) unstable; urgency=low
+oxpoints-legacy-editor (0.1.18) unstable; urgency=low
 
   * Bugfix on request view.
 
  -- Alexander Dutton <alexander.dutton@it.ox.ac.uk>  Sat, 31 Jan 2015 11:54:03 +0000
+
+oxpoints-legacy-editor (0.1.17) unstable; urgency=low
+
+  * added missing leaflet images
+
+ -- Alexander Dutton <alexander.dutton@it.ox.ac.uk>  Fri, 09 Jan 2015 16:21:32 +0000
+
+oxpoints-legacy-editor (0.1.16) unstable; urgency=low
+
+  * Getting create view working
+  * leaflet
+
+ -- Alexander Dutton <alexander.dutton@it.ox.ac.uk>  Fri, 09 Jan 2015 16:14:25 +0000
+
+oxpoints-legacy-editor (0.1.15) unstable; urgency=low
+
+  * Removed oxpeditor.utils and with it, an unwanted dependency
+
+ -- Alexander Dutton <alexander.dutton@it.ox.ac.uk>  Wed, 17 Dec 2014 09:14:51 +0000
 
 oxpoints-legacy-editor (0.1) unstable; urgency=low
 
