@@ -1,3 +1,9 @@
+oxpoints-legacy-editor (0.1.20) unstable; urgency=low
+
+  * Allow space configuration on trait[@type='type'] types
+
+ -- Alexander Dutton <alexander.dutton@it.ox.ac.uk>  Sat, 31 Jan 2015 19:01:28 +0000
+
 oxpoints-legacy-editor (0.1.19) unstable; urgency=low
 
   * Let colleges control units
