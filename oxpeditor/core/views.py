@@ -385,6 +385,7 @@ class RequestView(AuthedMixin, HTMLView):
         return self.render()
 
     def post(self, request):
+        self.context.update(self.get_initial_context())
         form, user = self.context['form'], request.user
         if not form.is_valid():
             return self.get(request)
