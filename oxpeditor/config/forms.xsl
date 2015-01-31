@@ -36,7 +36,7 @@
         <xsl:if test="tei:place">
           <form-type name="LocationForm"/>
         </xsl:if>
-        <xsl:if test="*[@type='Room' or @type='Space' or tei:trait[@type='type']/desc/text() = 'Room' or tei:trait[@type='type']/desc/text() = 'Space']">
+        <xsl:if test="*[@type='Room' or @type='Space' or tei:trait[@type='type']/tei:desc/text() = 'Room' or tei:trait[@type='type']/tei:desc/text() = 'Space']">
           <form-type name="SpaceConfigurationForm"/>
         </xsl:if>
       </form-types>

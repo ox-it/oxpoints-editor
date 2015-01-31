@@ -1,4 +1,4 @@
-oxpoints-legacy-editor (0.1.20) unstable; urgency=low
+oxpoints-legacy-editor (0.1.21) unstable; urgency=low
 
   * Allow space configuration on trait[@type='type'] types
 
