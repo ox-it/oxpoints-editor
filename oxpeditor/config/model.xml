@@ -195,7 +195,7 @@
     <type name="College" root_element="org">
       <label>college</label>
       <relations>
-        <relation name="controls" passive="Library" child="true"/>
+        <relation name="controls" passive="Library Unit" child="true"/>
         <relation-set name="occupation"/>
       </relations>
     </type>
