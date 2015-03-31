@@ -66,6 +66,9 @@
     <identifier name="charity" types="College Hall University Department">
       <label>charity number</label>
     </identifier>
+    <identifier name="company" types="Organization">
+      <label>company number</label>
+    </identifier>
     <identifier name="edubase-urn" types="University">
       <label>Edubase URN</label>
     </identifier>
