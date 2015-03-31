@@ -1,3 +1,9 @@
+oxpoints-legacy-editor (0.1.22) unstable; urgency=low
+
+  * Add company number to list of identifier schemes
+
+ -- Alexander Dutton <alexander.dutton@it.ox.ac.uk>  Tue, 31 Mar 2015 15:07:21 +0100
+
 oxpoints-legacy-editor (0.1.21) unstable; urgency=low
 
   * Allow space configuration on trait[@type='type'] types
