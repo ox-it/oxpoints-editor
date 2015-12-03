@@ -83,7 +83,7 @@ class AddressForm(forms.Form):
             subelem = etree.SubElement(a, 'postCode')
             subelem.text = cd.get('postcode')
         if cd.get('country'):
-            subelem = etree.SubElement(a, 'postCode')
+            subelem = etree.SubElement(a, 'country')
             subelem.text = cd.get('country')
         return n
 
