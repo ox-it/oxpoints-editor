@@ -121,6 +121,9 @@
         <postcode>
           <xsl:value-of select="tei:address/tei:postCode"/>
         </postcode>
+        <country>
+          <xsl:value-of select="tei:address/tei:country"/>
+        </country>
       </form>
     </xsl:for-each>
 

@@ -70,17 +70,21 @@ class AddressForm(forms.Form):
     extended = forms.CharField(required=False, label="Second line", help_text="(optional)")
     locality = forms.CharField(required=True, label="City")
     postcode = forms.CharField(required=False, label="Post code", help_text="(optional)")
+    country = forms.CharField(required=False, label="Country", help_text="(optional)")
 
     def serialize(self, cd, obj):
         n = etree.Element('location', nsmap={None: 'http://www.tei-c.org/ns/1.0'})
         a = etree.SubElement(n, 'address')
         for k in ('street', 'extended', 'locality'):
             if cd.get(k):
-                al = etree.SubElement(a, 'addrLine')
-                al.text = cd.get(k)
+                subelem = etree.SubElement(a, 'addrLine')
+                subelem.text = cd.get(k)
         if cd.get('postcode'):
-            al = etree.SubElement(a, 'postCode')
-            al.text = cd.get('postcode')
+            subelem = etree.SubElement(a, 'postCode')
+            subelem.text = cd.get('postcode')
+        if cd.get('country'):
+            subelem = etree.SubElement(a, 'postCode')
+            subelem.text = cd.get('country')
         return n
 
     max_num = 1
