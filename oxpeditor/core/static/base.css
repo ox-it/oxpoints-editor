@@ -269,3 +269,60 @@ ul.relation-list li {
   display: inline;
   padding:5px 5px 5px 0;
 }
+
+.lyou {
+  border-collapse: collapse;
+  overflow: hidden;
+}
+.lyou thead th {
+  vertical-align: bottom;
+}
+
+.lyou td {
+  border: 1px solid #ccc;
+}
+
+.lyou-term {
+  height: 440px;
+  white-space: nowrap;
+}
+
+.lyou td {
+  height: 1em;
+  width: 1em;
+}
+
+.lyou-term > div {
+    transform:
+    /* Magic Numbers */
+    translate(0px, -10px)
+    /* 45 is really 360 - 45 */
+    rotate(270deg);
+  width: 30px;
+}
+
+.lyou-term > div > span {
+  /*border-bottom: 1px solid #ccc;*/
+  padding: 5px 10px;
+  margin-left: -13px;
+}
+
+
+.lyou tr:hover {
+  background-color: #ffa;
+}
+
+td, .lyou th {
+  position: relative;
+}
+.lyou td:hover::after,
+.lyou th:hover::after {
+  content: "";
+  position: absolute;
+  background-color: #ffa;
+  left: 0;
+  top: -5000px;
+  height: 10000px;
+  width: 100%;
+  z-index: -1;
+}

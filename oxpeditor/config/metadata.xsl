@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<xsl:stylesheet version="2.0"
+<xsl:stylesheet version="1.0"
     xmlns:tei="http://www.tei-c.org/ns/1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
@@ -79,6 +79,16 @@
       <latitude>
         <xsl:value-of select="substring-after(tei:place/tei:location/tei:geo, ' ')"/>
       </latitude>
+
+        <linking_you>
+            <xsl:for-each
+                    select="*/tei:group[@type='lyou']/tei:trait[starts-with(@type, 'lyou:') and tei:desc/tei:ptr/@target]">
+                <xsl:if test="position() &gt; 1">
+                    <xsl:text> </xsl:text>
+                </xsl:if>
+                <xsl:value-of select="substring-after(@type, 'lyou:')"/>
+            </xsl:for-each>
+        </linking_you>
     </metadata>
 
   </xsl:template>

@@ -208,6 +208,8 @@ class Object(MPTTModel):
     longitude = models.FloatField(null=True)
     latitude = models.FloatField(null=True)
 
+    linking_you = models.TextField(null=True, blank=True)
+
     parent = models.ForeignKey('self', null=True, blank=True)
     
     autosuggest_title = models.TextField(blank=True)

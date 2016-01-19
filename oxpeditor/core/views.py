@@ -553,3 +553,33 @@ class RevertView(EditingMixin, HTMLView):
         obj.save()
 
         return HttpResponseSeeOther(reverse('core:detail-revert', args=[oxpid]) + '?done=true')
+
+class LinkingYouView(EditingMixin, HTMLView):
+    template_name = 'linking-you.html'
+
+    def get(self, request):
+        objects = Object.objects.filter(linking_you__isnull=False).exclude(linking_you='').order_by('title')
+        if 'type' in self.request.GET:
+             objects = objects.filter(type=self.request.GET['type'])
+        print(dir(forms.LinkingYouForm))
+        terms = [{'name': k, 'label': v.label, 'help_text': v.help_text}
+                 for k, v in forms.LinkingYouForm.base_fields.items()
+                 if k != 'path']
+        seen_terms = set()
+        for o in objects:
+            seen = []
+            print(o.oxpid, o.linking_you)
+            object_terms = set(o.linking_you.split())
+            for term in terms:
+                seen.append((term, term['name'] in object_terms))
+            seen_terms.update(object_terms)
+            o.seen_terms = seen
+        for term in terms:
+            if term['name'] not in seen_terms:
+                term['hide'] = True
+        self.context.update({
+            'objects': objects,
+            'types': sorted(set(o.type for o in Object.objects.all())),
+            'terms': terms,
+        })
+        return self.render()
