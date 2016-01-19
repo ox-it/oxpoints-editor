@@ -20,6 +20,6 @@ def allow_itss_editing(sender, **kwargs):
     permission = Permission.objects.get(content_type=content_type, codename='change_object')
     itss_group.permissions.add(permission)
 
-post_syncdb.connect(create_conflict_user, sender=models)
-post_syncdb.connect(allow_itss_editing, sender=models)
+post_migrate.connect(create_conflict_user, sender=models)
+post_migrate.connect(allow_itss_editing, sender=models)
 

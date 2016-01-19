@@ -349,6 +349,21 @@ $(function () {
       </section>
 {% endif %}
 
+{% if forms.LinkingYouForm %}
+      <section{% if forms.LinkingYouForm.errors|any %} class="has_errors"{% endif %}>
+          <header>
+              <h2>Linking You</h2>
+              <p>These are URLs to pages about key aspects of an organisation.</p>
+          </header>
+
+          <table>
+              <tbody>
+              {% for form in forms.LinkingYouForm.forms %}{{ form.as_table }}{%  endfor %}
+              </tbody>
+          </table>
+      </section>
+{% endif %}
+
 {% if forms.LocationForm %}
       <section{% if forms.LocationForm.errors|any %} class="has_errors"{% endif %}>
         <header>

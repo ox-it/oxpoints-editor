@@ -33,6 +33,9 @@
           <form-type name="URLForm"/>
           <form-type name="DescriptionForm"/>
         </xsl:if>
+        <xsl:if test="tei:org">
+          <form-type name="LinkingYouForm"/>
+        </xsl:if>
         <xsl:if test="tei:place">
           <form-type name="LocationForm"/>
         </xsl:if>
@@ -185,7 +188,17 @@
         </comment>
       </form>
     </xsl:for-each>
-        
+
+    <xsl:for-each select="tei:group[@type='lyou']">
+        <form name="LinkingYouForm">
+            <xsl:call-template name="path-attribute"/>
+            <xsl:for-each select="tei:trait[tei:desc/tei:ptr and starts-with(@type, 'lyou:')]">
+                <xsl:element name="{substring-after(@type, 'lyou:')}">
+                    <xsl:value-of select="tei:desc/tei:ptr/@target"/>
+                </xsl:element>
+            </xsl:for-each>
+        </form>
+    </xsl:for-each>
 
   </xsl:template>
 </xsl:stylesheet>

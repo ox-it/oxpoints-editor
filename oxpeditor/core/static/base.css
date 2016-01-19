@@ -117,7 +117,8 @@ body > section section textarea {
     width:100%;
 }
 
-body > section section input[type=text] {
+body > section section input[type=text],
+body > section section input[type=url] {
     width:400px;
 }
 

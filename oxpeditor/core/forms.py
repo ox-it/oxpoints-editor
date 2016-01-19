@@ -6,6 +6,9 @@ from lxml import etree
 from django import forms
 from django.forms.formsets import formset_factory, BaseFormSet
 from django.forms.util import ErrorDict
+import pkg_resources
+import rdflib
+from rdflib.namespace import RDFS
 
 from .models import IDNO_SCHEME_CHOICES, URL_TYPE_CHOICES, SPACE_CONFIGURATION_CHOICES
 from .utils import date_filter
@@ -187,6 +190,32 @@ class ImplicitDeleteFormSet(BaseFormSet):
                 form._errors = ErrorDict()
         return super(ImplicitDeleteFormSet, self).is_valid()
 
+
+LYOU = rdflib.Namespace('http://purl.org/linkingyou/')
+with pkg_resources.resource_stream('oxpeditor', 'config/linkingyou.ttl') as f:
+    lyou_graph = rdflib.Graph()
+    lyou_graph.parse(f, format='n3')
+
+
+def serialize_lyou(self, cd, obj):
+    group = etree.Element('group', type='lyou')
+    for k, v in cd.items():
+        if v and k != 'path':
+            trait = etree.SubElement(group, 'trait', type='lyou:' + k)
+            desc = etree.SubElement(trait, 'desc')
+            ptr = etree.SubElement(desc, 'ptr', target=v)
+    return group
+
+LinkingYouForm = type('LinkingYouForm', (forms.Form,), dict(
+    ((n[len(LYOU):], forms.URLField(label=lyou_graph.value(n, RDFS.label),
+                                    help_text=lyou_graph.value(n, RDFS.comment),
+                                    required=False))
+    for n in sorted(set(lyou_graph.subjects(RDFS.isDefinedBy, rdflib.URIRef(LYOU))))),
+    path=forms.CharField(required=False, widget=forms.HiddenInput),
+    singleton=True,
+    serialize=serialize_lyou)
+)
+
 def get_forms(xml, post_data):
     xml = date_filter(xml, ignore=True)
     xml = transform(xml, 'forms.xsl')
@@ -207,10 +236,11 @@ def get_forms(xml, post_data):
     for k in ret:
         form_class = globals()[k]
         assert issubclass(form_class, forms.Form)
+        singleton = getattr(form_class, 'singleton', False)
         formset = formset_factory(form_class,
                                   extra=2,
-                                  can_delete=True,
-                                  max_num=getattr(form_class, 'max_num', None),
+                                  can_delete=not singleton,
+                                  max_num=1 if singleton else getattr(form_class, 'max_num', None) ,
                                   formset=ImplicitDeleteFormSet)
         ret[k] = formset(post_data,
                          initial=ret[k],

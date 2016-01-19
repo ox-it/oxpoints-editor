@@ -29,8 +29,8 @@ ALLOWED_HOSTS = ['*']
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-CSRF_COOKIE_PATH = PREFIX + '/'
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_PATH = PREFIX
+CSRF_COOKIE_SECURE = not DEBUG
 FORCE_SCRIPT_NAME = PREFIX
 
 # Local time zone for this installation. Choices can be found here:
@@ -64,6 +64,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 ROOT_URLCONF = 'oxpeditor.urls'
