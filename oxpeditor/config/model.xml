@@ -111,6 +111,9 @@
     <identifier name="googleplus" types="Library University Department Faculty Division College Hall StudentGroup Organization">
       <label>Google+ account name</label>
     </identifier>
+    <identifier name="weibo" types="Library University Department Faculty Division College Hall StudentGroup Organization">
+      <label>Weibo account name</label>
+    </identifier>
     <identifier name="librarything" types="Library SubLibrary">
       <label>LibraryThing profile name</label>
     </identifier>
