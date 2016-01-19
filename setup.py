@@ -10,7 +10,7 @@ for line in open('requirements.txt'):
         install_requires.append(line)
 
 setup(name='oxpeditor',
-      version='0.1.25',
+      version='0.1.26',
       packages=find_packages(),
       include_package_data=True,
       package_data={'': ['*.xml', 'templates/*.html']},
