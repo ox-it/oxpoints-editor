@@ -1,3 +1,9 @@
+oxpoints-legacy-editor (0.2) unstable; urgency=low
+
+  * Added a link checker
+
+ -- Alexander Dutton <alexander.dutton@it.ox.ac.uk>  Tue, 20 Jan 2016 14:41:12 +0000
+
 oxpoints-legacy-editor (0.1.26) unstable; urgency=low
 
   * Allow support for LinkingYou terms.
