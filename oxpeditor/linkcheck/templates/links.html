@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+    <table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Target</th>
+        <th>Status</th>
+        <th>State</th>
+        <th>Problem</th>
+    </tr>
+    </thead>
+    <tbody>{% for link in links %}
+    <tr>
+        <td><a href="{{ link.object.get_absolute_url }}">{{ link.object.title }}</a></td>
+    <td>{{ link.type }}</td>
+    <td><a href="{{ link.target }}">{{ link.target|truncatechars:100 }}</a></td>
+        <td>{{  link.status_code|default_if_none:"" }}</td>
+    <td>{{ link.get_state_display }}</td>
+    <td>{{ link.get_problem_display|default_if_none:"" }}</td>
+    </tr>
+    {% endfor %}</tbody>
+    </table>
+{% endblock %}

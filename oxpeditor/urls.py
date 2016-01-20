@@ -9,6 +9,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Example:
     (r'^', include('oxpeditor.core.urls', namespace='core')),
+    (r'^', include('oxpeditor.linkcheck.urls', namespace='linkcheck')),
     (r'^webauth/', include('oxpeditor.webauth.urls', namespace='webauth')),
 
     (r'^admin/', include(admin.site.urls)),
