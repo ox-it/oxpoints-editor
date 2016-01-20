@@ -6,7 +6,6 @@ from datetime import date, datetime
 import json
 from collections import defaultdict
 import os, re
-from pprint import pprint
 
 from xml.sax.saxutils import escape
 from lxml import etree
@@ -561,14 +560,12 @@ class LinkingYouView(EditingMixin, HTMLView):
         objects = Object.objects.filter(linking_you__isnull=False).exclude(linking_you='').order_by('title')
         if 'type' in self.request.GET:
              objects = objects.filter(type=self.request.GET['type'])
-        print(dir(forms.LinkingYouForm))
         terms = [{'name': k, 'label': v.label, 'help_text': v.help_text}
                  for k, v in forms.LinkingYouForm.base_fields.items()
                  if k != 'path']
         seen_terms = set()
         for o in objects:
             seen = []
-            print(o.oxpid, o.linking_you)
             object_terms = set(o.linking_you.split())
             for term in terms:
                 seen.append((term, term['name'] in object_terms))
