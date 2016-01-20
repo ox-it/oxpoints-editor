@@ -274,8 +274,20 @@ ul.relation-list li {
   border-collapse: collapse;
   overflow: hidden;
 }
+.lyou th {
+  font-weight: normal;
+}
+
+.lyou tbody th {
+  padding: 0.2em 0;
+}
+
 .lyou thead th {
-  vertical-align: bottom;
+  padding: 0;
+}
+
+.lyou-term-counts td {
+  padding-top: 0.4em;
 }
 
 .lyou td {
@@ -285,6 +297,7 @@ ul.relation-list li {
 .lyou-term {
   height: 440px;
   white-space: nowrap;
+  vertical-align: bottom;
 }
 
 .lyou td {

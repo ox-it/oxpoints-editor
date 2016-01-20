@@ -15,13 +15,20 @@
     <table class="lyou">
         <thead>
             <tr>
-                <th>Name</th>{%  for term in terms %}{%  if not term.hide %}
+                <th></th>
+                <th></th>{%  for term in terms %}{%  if term.count > 0 %}
                 <th class="lyou-term" {% if term.help_text %} title="{{ term.help_text }}"{%  endif %}><div><span>{{ term.label }}</span></div></th>{%  endif %}{% endfor %}
+            </tr>
+            <tr class="lyou-term-counts">
+                <th style="white-space: nowrap">name</th>
+                <th>count</th>{%  for term in terms %}{%  if term.count > 0 %}
+                <td>{{ term.count }}</td>{% endif %}{% endfor %}
             </tr>
         </thead>
         <tbody>{% for object in objects %}
             <tr>
-                <th><a href="{{ object.get_absolute_url }}">{{ object.title }}</a></th>{% for term, seen in object.seen_terms %}{% if not term.hide %}
+                <th><a href="{{ object.get_absolute_url }}">{{ object.title }}</a></th>
+                <th>{{ object.term_count }}</th>{% for term, seen in object.seen_terms %}{% if term.count > 0 %}
                 <td>{% if seen %}<i class="fa fa-check-square"> </i>{% endif %}</td>{% endif %}{% endfor %}
             </tr>
         {% endfor %}</tbody>

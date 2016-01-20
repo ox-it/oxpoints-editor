@@ -560,20 +560,27 @@ class LinkingYouView(EditingMixin, HTMLView):
         objects = Object.objects.filter(linking_you__isnull=False).exclude(linking_you='').order_by('title')
         if 'type' in self.request.GET:
              objects = objects.filter(type=self.request.GET['type'])
-        terms = [{'name': k, 'label': v.label, 'help_text': v.help_text}
+        terms = [{'name': k, 'label': v.label, 'help_text': v.help_text, 'count': 0}
                  for k, v in forms.LinkingYouForm.base_fields.items()
                  if k != 'path']
-        seen_terms = set()
         for o in objects:
             seen = []
             object_terms = set(o.linking_you.split())
+            o.term_count = 0
             for term in terms:
-                seen.append((term, term['name'] in object_terms))
-            seen_terms.update(object_terms)
+                has_term = term['name'] in object_terms
+                seen.append((term, has_term))
+                if has_term:
+                    term['count'] += 1
+                    o.term_count += 1
             o.seen_terms = seen
-        for term in terms:
-            if term['name'] not in seen_terms:
-                term['hide'] = True
+        if request.GET.get('termSort') == 'count':
+            terms.sort(key=lambda t: -t['count'])
+            for o in objects:
+                o.seen_terms.sort(key=lambda (t, _): -t['count'])
+        if request.GET.get('entitySort') == 'count':
+            objects = list(objects)
+            objects.sort(key=lambda o: -o.term_count)
         self.context.update({
             'objects': objects,
             'types': sorted(set(o.type for o in Object.objects.filter(linking_you__isnull=False).exclude(linking_you=''))),
