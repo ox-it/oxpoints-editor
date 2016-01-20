@@ -576,7 +576,7 @@ class LinkingYouView(EditingMixin, HTMLView):
                 term['hide'] = True
         self.context.update({
             'objects': objects,
-            'types': sorted(set(o.type for o in Object.objects.all())),
+            'types': sorted(set(o.type for o in Object.objects.filter(linking_you__isnull=False).exclude(linking_you=''))),
             'terms': terms,
         })
         return self.render()
