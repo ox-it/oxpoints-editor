@@ -21,8 +21,8 @@
         </thead>
         <tbody>{% for object in objects %}
             <tr>
-                <th>{{ object.title }}</th>{% for term, seen in object.seen_terms %}{% if not term.hide %}
-                <td>{% if seen %}x{% endif %}</td>{% endif %}{% endfor %}
+                <th><a href="{{ object.get_absolute_url }}">{{ object.title }}</a></th>{% for term, seen in object.seen_terms %}{% if not term.hide %}
+                <td>{% if seen %}<i class="fa fa-check-square"> </i>{% endif %}</td>{% endif %}{% endfor %}
             </tr>
         {% endfor %}</tbody>
     </table>

@@ -279,7 +279,7 @@ ul.relation-list li {
 }
 
 .lyou td {
-  border: 1px solid #ccc;
+  text-align: center;
 }
 
 .lyou-term {
