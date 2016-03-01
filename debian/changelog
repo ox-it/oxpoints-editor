@@ -1,3 +1,9 @@
+oxpoints-legacy-editor (0.2.2) unstable; urgency=low
+
+  * Bugfixes to link checker
+
+ -- Alexander Dutton <alexander.dutton@it.ox.ac.uk>  Tue, 1 Mar 2016 13:47:44 +0000
+
 oxpoints-legacy-editor (0.2.1) unstable; urgency=low
 
   * UX improvements to link checker
