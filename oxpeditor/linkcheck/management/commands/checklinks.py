@@ -9,6 +9,7 @@ from lxml import etree
 from django.core.management import BaseCommand
 
 from oxpeditor.core.models import File, Object
+from oxpeditor.core.utils import date_filter
 from oxpeditor.linkcheck.models import Link
 
 NS = {'tei': 'http://www.tei-c.org/ns/1.0'}
@@ -42,6 +43,7 @@ class Command(BaseCommand):
 
     def gather_links_for_file(self, file):
         file_xml = etree.fromstring(file.xml)
+        date_filter(file_xml)
         for xml in file_xml.xpath("descendant-or-self::*[@oxpID]"):
             oxpid = xml.attrib['oxpID']
             object = Object.objects.get(oxpid=oxpid)
