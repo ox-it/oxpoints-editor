@@ -1,13 +1,13 @@
 from django_conneg.views import HTMLView
 from oxpeditor.core.views import EditingMixin
-from oxpeditor.linkcheck.models import Link
+from oxpeditor.linkcheck.models import Link, STATE_CHOICES, PROBLEM_CHOICES
 
 
 class LinkView(EditingMixin, HTMLView):
     template_name = 'links'
 
     def get(self, request):
-        links = Link.objects.all().order_by('object__title', 'type')
+        links = Link.objects.all().order_by('object__title', 'type').select_related('object')
 
         if 'state' in request.GET:
             links = links.filter(state__in=request.GET.getlist('state'))
@@ -16,5 +16,7 @@ class LinkView(EditingMixin, HTMLView):
 
         self.context.update({
             'links': links,
+            'state_choices': STATE_CHOICES,
+            'problem_choices': PROBLEM_CHOICES,
         })
         return self.render()

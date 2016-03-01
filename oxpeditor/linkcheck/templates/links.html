@@ -1,9 +1,48 @@
-{% extends "base.html" %}
+{% extends "base.html" %}{% load oxpeditor_core %}
 
 {% block body %}
     <h1>Link checking</h1>
 
     <p>This page shows all links within OxPoints, and whether they currently resolve properly.</p>
+
+
+    <div class="filter-types">
+        Filter by state:
+        <ul>
+            {% for slug, label in state_choices %}
+                <li>
+                    {% if request.GET.state == slug %}
+                        {{ label }}
+                    {% else %}
+                        <a href="{% updated_query_string state=slug %}">{{ label }}</a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+
+            {% if request.GET.state %}
+                <li><a href="{% updated_query_string state="" %}">[clear]</a></li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div class="filter-types">
+        Filter by problem:
+        <ul>
+            {% for slug, label in problem_choices %}
+                <li>
+                    {% if request.GET.problem == slug %}
+                        {{ label }}
+                    {% else %}
+                        <a href="{% updated_query_string problem=slug %}">{{ label }}</a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+
+            {% if request.GET.problem %}
+                <li><a href="{% updated_query_string problem="" %}">[clear]</a></li>
+            {% endif %}
+        </ul>
+    </div>
 
     <table>
     <thead>
@@ -14,6 +53,7 @@
         <th>Status</th>
         <th>State</th>
         <th>Problem</th>
+        <th>Last checked</th>
     </tr>
     </thead>
     <tbody>{% for link in links %}
@@ -24,6 +64,11 @@
         <td>{{  link.status_code|default_if_none:"" }}</td>
     <td>{{ link.get_state_display }}</td>
     <td>{{ link.get_problem_display|default_if_none:"" }}</td>
+{% if link.last_checked %}
+    <td title="{{ link.last_checked }}">{{ link.last_checked|timesince }} ago</td>
+{% else %}
+    <td></td>
+{% endif %}
     </tr>
     {% endfor %}</tbody>
     </table>

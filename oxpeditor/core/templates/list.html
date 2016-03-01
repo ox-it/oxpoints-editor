@@ -9,7 +9,7 @@
       Filter by type:
       <ul>
 {% for type in types %}
-        <li><a href=".?type={{ type }}">{{ type }}</a></li>
+        <li><a href="{% updated_query_string type=type %}">{{ type }}</a></li>
 {% endfor %}
       </ul>
     </div>
