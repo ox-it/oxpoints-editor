@@ -47,7 +47,7 @@ class Command(BaseCommand):
             object = Object.objects.get(oxpid=oxpid)
 
             traits = xml.xpath('.//tei:trait[@type and tei:desc/tei:ptr/@target]', namespaces=NS)
-            traits = [t for t in traits if t.xpath('ancestor::*[@oxpID]')[0].attrib['oxpID'] == oxpid]
+            traits = [t for t in traits if t.xpath('ancestor::*[@oxpID]')[-1].attrib['oxpID'] == oxpid]
             types = set(t.attrib['type'] for t in traits)
             Link.objects.filter(object=object).exclude(type__in=types).delete()
 
