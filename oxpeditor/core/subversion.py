@@ -74,7 +74,8 @@ def perform_update(force=False):
     svn_updated = set(filter(bool, [l[2:].strip() for l in svn_updated]))
     
     files = dict((f.filename, f) for f in File.objects.all())
-    conflict_user = User.objects.get(username='conflict')
+    conflict_user = User.objects.get_or_create(username='conflict',
+                                               defaults={'first_name': 'In', 'last_name': 'Conflict'})
     filenames = set(os.listdir(settings.REPO_PATH))
     updated = set()
 
