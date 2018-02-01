@@ -322,7 +322,7 @@ class DetailView(EditingMixin, TemplateView):
 
         file_obj = obj.in_file
         file_obj.user = request.user
-        file_obj.xml = etree.tostring(root, pretty_print=True)
+        file_obj.xml = etree.tostring(root, pretty_print=True).decode()
         file_obj.last_modified = datetime.now()
         file_obj.save(relations_unmodified=True, objects_modified=set([oxpid]))
         
@@ -464,7 +464,7 @@ class CreateView(EditingMixin, TemplateView):
             xml.append(getattr(E, '%sName' % root_elem)(title))
         
         file_obj.initial_xml = '<empty/>'
-        file_obj.xml = etree.tostring(xml)
+        file_obj.xml = etree.tostring(xml).decode()
         file_obj.save(objects_modified=(new_oxpid,))
         
         if parent:
@@ -528,7 +528,7 @@ class RevertView(EditingMixin, TemplateView):
                         child_xml.getparent().remove(child_xml)
                 c.getparent().replace(c, child_xml)
 
-        file_obj.xml = etree.tostring(old)
+        file_obj.xml = etree.tostring(old).decode()
         file_obj.user = None
         obj.modified = False
 

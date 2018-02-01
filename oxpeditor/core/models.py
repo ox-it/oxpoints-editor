@@ -1,4 +1,3 @@
-import itertools
 from lxml import etree
 
 from django.db import models
@@ -102,7 +101,7 @@ class File(models.Model):
 
         xml = etree.fromstring(self.xml.replace('\r\n', '\n'))
         indent(xml)
-        self.xml = etree.tostring(xml)
+        self.xml = etree.tostring(xml).decode()
         super(File, self).save(*args, **kwargs)
 
         # Update the object metadata

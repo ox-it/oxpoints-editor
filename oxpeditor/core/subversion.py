@@ -14,9 +14,12 @@ from .models import File
 class CommitFailedException(Exception):
     pass
 
+
 def save_to_disk(file_obj, filename):
     xml = etree.fromstring(file_obj.xml)
-    open(filename, 'w').write(etree.tostring(xml, xml_declaration=True, encoding="UTF-8"))
+    with open(filename, 'wb') as f:
+        f.write(etree.tostring(xml, xml_declaration=True))
+
 
 def perform_commit(user, message):
     os.chdir(settings.REPO_PATH)
@@ -96,7 +99,7 @@ def perform_update(force=False):
             
 
         xml = etree.parse(open(full_path))
-        file_obj.initial_xml = etree.tostring(xml)
+        file_obj.initial_xml = etree.tostring(xml).decode()
         file_obj.last_modified = mtime
         
         if not file_obj.xml or not file_obj.user:

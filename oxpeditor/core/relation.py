@@ -129,7 +129,7 @@ class RelationWrangler(object):
         for pk, xml in self.files.iteritems():
             file_obj = self.files.files[pk]
             
-            xml = etree.tostring(xml, pretty_print=True)
+            xml = etree.tostring(xml, pretty_print=True).decode()
             if xml == file_obj.xml:
                 continue
             
