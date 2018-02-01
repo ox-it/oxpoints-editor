@@ -4,7 +4,7 @@ from lxml import etree
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from mptt.models import MPTTModel
 
@@ -87,9 +87,10 @@ SUB_RELATIONS = {
 }
 CREATE_IN_SAME_FILE = ('Space', 'Room', 'OpenSpace', 'Carpark', 'SubLibrary',)
 
+
 class File(models.Model):
     filename = models.TextField()
-    user = models.ForeignKey(User, null=True, blank=True)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT)
     last_modified = models.DateTimeField()
 
     xml = models.TextField()
@@ -186,8 +187,8 @@ class File(models.Model):
         ordering = ('filename',)
             
 class Object(MPTTModel):
-    user = models.ForeignKey(User, null=True, blank=True)
-    in_file = models.ForeignKey(File, null=True)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT)
+    in_file = models.ForeignKey(File, null=True, on_delete=models.CASCADE)
     modified = models.BooleanField(default=False)
     
     oxpid = models.CharField(max_length = 8)
@@ -210,7 +211,7 @@ class Object(MPTTModel):
 
     linking_you = models.TextField(null=True, blank=True)
 
-    parent = models.ForeignKey('self', null=True, blank=True)
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.PROTECT)
     
     autosuggest_title = models.TextField(blank=True)
 
@@ -282,12 +283,12 @@ del f
 
 
 class Relation(models.Model):
-    user = models.ForeignKey(User, null=True, blank=True)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT)
     inferred = models.BooleanField(default=None, null=False)
-    in_file = models.ForeignKey(File)
+    in_file = models.ForeignKey(File, on_delete=models.CASCADE)
 
-    active = models.ForeignKey(Object, related_name="active_relations")
-    passive = models.ForeignKey(Object, related_name="passive_relations")
+    active = models.ForeignKey(Object, related_name="active_relations", on_delete=models.CASCADE)
+    passive = models.ForeignKey(Object, related_name="passive_relations", on_delete=models.CASCADE)
     type = models.CharField(max_length=32, choices=RELATION_TYPE_CHOICES)
 
     def get_inverse_type_display(self):

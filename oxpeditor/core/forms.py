@@ -1,11 +1,11 @@
 from collections import defaultdict
 import itertools
 import re
+from django.forms.utils import ErrorDict
 from lxml import etree
 
 from django import forms
 from django.forms.formsets import formset_factory, BaseFormSet
-from django.forms.util import ErrorDict
 import pkg_resources
 import rdflib
 from rdflib.namespace import RDFS
@@ -13,7 +13,7 @@ from rdflib.namespace import RDFS
 from .models import IDNO_SCHEME_CHOICES, URL_TYPE_CHOICES, SPACE_CONFIGURATION_CHOICES
 from .utils import date_filter
 from .xslt import transform
-import data_model
+from . import data_model
 
 DATE_REGEX = r"""\d{1,4}(-\d{2}(-\d{2})?)?"""
 
@@ -41,6 +41,7 @@ class NameForm(forms.Form):
         n.text = cd['value']
         return n
 
+
 class IDNoForm(forms.Form):
     path = forms.CharField(required=False, widget=forms.HiddenInput)
     value = forms.CharField(required=True)
@@ -50,6 +51,7 @@ class IDNoForm(forms.Form):
         n = etree.Element('idno', nsmap={None: 'http://www.tei-c.org/ns/1.0'}, type=cd['scheme'])
         n.text = cd['value']
         return n
+
 
 class SpaceConfigurationForm(forms.Form):
     path = forms.CharField(required=False, widget=forms.HiddenInput)
@@ -61,11 +63,12 @@ class SpaceConfigurationForm(forms.Form):
         n = etree.Element('trait', nsmap=nsmap, type='configuration', subtype=cd['type'])
         if cd.get('capacity'):
             capacity = etree.SubElement(n, 'note', type='capacity')
-            capacity.text = unicode(cd['capacity'])
+            capacity.text = str(cd['capacity'])
         if cd.get('comment'):
             capacity = etree.SubElement(n, 'note', type='comment')
             capacity.text = cd['comment']
         return n
+
 
 class AddressForm(forms.Form):
     path = forms.CharField(required=False, widget=forms.HiddenInput)
@@ -92,6 +95,7 @@ class AddressForm(forms.Form):
 
     max_num = 1
 
+
 class URLForm(forms.Form):
     path = forms.CharField(required=False, widget=forms.HiddenInput)
     url = forms.URLField()
@@ -106,6 +110,7 @@ class URLForm(forms.Form):
             n = etree.SubElement(n, 'ptr', target=cd['url'])
             return r
 
+
 class LocationForm(forms.Form):
     path = forms.CharField(required=False, widget=forms.HiddenInput)
     latitude = forms.FloatField()
@@ -118,6 +123,7 @@ class LocationForm(forms.Form):
         return l   
 
     max_num = 1
+
 
 class DescriptionForm(forms.Form):
     path = forms.CharField(required=False, widget=forms.HiddenInput)
@@ -136,6 +142,7 @@ UPDATE_TYPE_CHOICES = (
     ('update', 'updates OxPoints to reflect a change in the real world'),
 )
 
+
 class UpdateTypeForm(forms.Form):
     update_type = forms.ChoiceField(choices=UPDATE_TYPE_CHOICES, widget=forms.RadioSelect)
     when = forms.DateField(required=False)
@@ -151,13 +158,16 @@ class UpdateTypeForm(forms.Form):
                     del cleaned_data['when']
         return cleaned_data
 
+
 class CommitForm(forms.Form):
     message = forms.CharField(widget=forms.Textarea, label='Commit description')
+
 
 class RequestForm(forms.Form):
     subject = forms.CharField(label='Subject of request')
     message = forms.CharField(widget=forms.Textarea, label='Message')
     related_file = forms.FileField(required=False)
+
 
 def CreateForm(*args, **kwargs):
     parent_type = kwargs.pop('parent_type', None)
@@ -175,6 +185,7 @@ def CreateForm(*args, **kwargs):
                                    required=False,
                                    label='When did this entity come into existence?')
     return form(*args, **kwargs)
+
 
 class ImplicitDeleteFormSet(BaseFormSet):
     def is_valid(self):
@@ -205,6 +216,7 @@ def serialize_lyou(self, cd, obj):
             desc = etree.SubElement(trait, 'desc')
             ptr = etree.SubElement(desc, 'ptr', target=v)
     return group
+
 
 LinkingYouForm = type('LinkingYouForm', (forms.Form,), dict(
     ((n[len(LYOU):], forms.URLField(label=lyou_graph.value(n, RDFS.label),

@@ -124,3 +124,18 @@ SESSION_COOKIE_AGE = 36000
 
 import logging
 logging.basicConfig(level=logging.INFO)
+
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': (
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.static',
+            ),
+        },
+    },
+]

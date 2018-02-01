@@ -1,10 +1,11 @@
-from django_conneg.views import HTMLView
+from django.views.generic import TemplateView
+
 from oxpeditor.core.views import EditingMixin
 from oxpeditor.linkcheck.models import Link, STATE_CHOICES, PROBLEM_CHOICES
 
 
-class LinkView(EditingMixin, HTMLView):
-    template_name = 'links'
+class LinkView(EditingMixin, TemplateView):
+    template_name = 'links.html'
 
     def get(self, request):
         links = Link.objects.all().order_by('object__title', 'type').select_related('object')

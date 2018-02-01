@@ -1,7 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from . import views
 
-urlpatterns = patterns('',
+app_name = 'linkcheck'
+
+urlpatterns = [
     url(r'^links/$', views.LinkView.as_view(), name='links'),
-)
+]

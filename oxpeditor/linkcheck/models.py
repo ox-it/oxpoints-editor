@@ -19,7 +19,7 @@ PROBLEM_CHOICES = (
 )
 
 class Link(models.Model):
-    object = models.ForeignKey(Object)
+    object = models.ForeignKey(Object, on_delete=models.CASCADE)
     type = models.CharField(max_length=64)
     target = models.URLField(max_length=2048)
     status_code = models.IntegerField(null=True, blank=True)

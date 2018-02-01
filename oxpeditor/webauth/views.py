@@ -1,14 +1,11 @@
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
-from django_conneg.http import HttpResponseSeeOther
-from django_conneg.views import HTMLView
+from django.views.generic import View, TemplateView
 
-class IndexView(HTMLView):
-    pass
 
-class LoginView(HTMLView):
+class LoginView(View):
     def get(self, request):
         username = request.META.get('REMOTE_USER')
         if not username:
@@ -17,12 +14,13 @@ class LoginView(HTMLView):
         user = authenticate(username=username)
         login(request, user)
 
-        return HttpResponseSeeOther(request.GET.get('next', reverse('core:index')))
+        return redirect(request.GET.get('next', reverse('core:index')))
 
-class LogoutView(HTMLView):
-    template_name = 'logout'
+
+class LogoutView(TemplateView):
+    template_name = 'logout.html'
 
     def get(self, request):
         logout(request)
-        return self.render()
+        return super().get(request)
 

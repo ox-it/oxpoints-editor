@@ -16,36 +16,34 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.nonmultipart import MIMENonMultipart
 
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseBadRequest, Http404, HttpResponse
 from django.conf import settings
-from django.db import connection
-from django.views.generic import View
+from django.views.generic import View, TemplateView, FormView
 from django.utils.decorators import method_decorator
-from django_conneg.http import HttpResponseSeeOther
-from django_conneg.views import HTMLView, JSONView
 
 from .models import Object, Relation, File, NS
 from . import forms
-from .xslt import transform
-from .utils import date_filter, svn_lock, find_new_oxpid
+from .utils import svn_lock, find_new_oxpid
 from .subversion import perform_commit
 from .forms import get_forms, UpdateTypeForm, CommitForm, RequestForm, CreateForm
 from .relation import RelationWrangler
 from . import data_model
+
 
 class AuthedMixin(object):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super(AuthedMixin, self).dispatch(request, *args, **kwargs)
 
+
 class EditingMixin(object):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated():
-            return HttpResponseSeeOther('%s?%s' % (settings.LOGIN_URL, urllib.urlencode({'next':request.get_full_path()})))
+            return redirect('%s?%s' % (settings.LOGIN_URL, urllib.urlencode({'next':request.get_full_path()})))
         elif not request.user.has_perm('core.change_object'):
             response = self.render(request, {}, 'insufficient-privileges')
             response.status_code = 403
@@ -53,15 +51,15 @@ class EditingMixin(object):
         else:
             return super(EditingMixin, self).dispatch(request, *args, **kwargs)
 
-class IndexView(HTMLView):
-    template_name = 'index'
-    def get(self, request):
-        return self.render()
 
-class CommitView(EditingMixin, HTMLView):
-    template_name = 'commit'
+class IndexView(TemplateView):
+    template_name = 'index.html'
 
-    def get_initial_context(self):
+
+class CommitView(EditingMixin, TemplateView):
+    template_name = 'commit.html'
+
+    def get_context_data(self, **kwargs):
         return {
             'form': CommitForm(self.request.POST or None),
             'done': self.request.GET.get('done') == 'true',
@@ -69,10 +67,6 @@ class CommitView(EditingMixin, HTMLView):
             'unsuccessful': Object.objects.filter(oxpid__in=self.request.GET.get('unsuccessful','').split(',')),
             'modified': Object.objects.filter(user=self.request.user, modified=True),
         }
-
-    def get(self, request):
-        self.context.update(self.get_initial_context())
-        return self.render()
 
     def post(self, request):
         self.context.update(self.get_initial_context())
@@ -88,16 +82,17 @@ class CommitView(EditingMixin, HTMLView):
             successful = perform_commit(request.user, self.context['form'].cleaned_data['message'])
         unsuccessful = to_commit - successful
 
-        return HttpResponseSeeOther('.?%s' % urllib.urlencode({
+        return redirect('.?%s' % urllib.urlencode({
             'done': 'true',
             'successful': ','.join(chain(*(edited[f] for f in successful))),
             'unsuccessful': ','.join(chain(*(edited[f] for f in unsuccessful))),
-        }))            
+        }))
 
-class DiffView(EditingMixin, HTMLView):
-    template_name = 'diff'
 
-    def get_initial_context(self):
+class DiffView(EditingMixin, TemplateView):
+    template_name = 'diff.html'
+
+    def get_context_data(self, **kwargs):
         edited = File.objects.filter(user=self.request.user)
 
         objects, sm = [], difflib.SequenceMatcher()
@@ -140,15 +135,12 @@ class DiffView(EditingMixin, HTMLView):
         return {
             'files': objects,
         }
-        
-    def get(self, request):
-        self.context.update(self.get_initial_context())
-        return self.render()
 
-class ListView(EditingMixin, HTMLView):
-    template_name = 'list'
 
-    def get_initial_context(self):
+class ListView(EditingMixin, TemplateView):
+    template_name = 'list.html'
+
+    def get_context_data(self, **kwargs):
         objects = Object.objects.all() #.order_by('-user')
         if 'type' in self.request.GET:
              objects = objects.filter(type=self.request.GET['type'])
@@ -176,12 +168,9 @@ class ListView(EditingMixin, HTMLView):
              'types': sorted(set(o.type for o in Object.objects.all())),
         }
 
-    def get(self, request):
-        self.context.update(self.get_initial_context())
-        return self.render()
 
-class TreeView(EditingMixin, HTMLView):
-    template_name = 'tree'
+class TreeView(EditingMixin, TemplateView):
+    template_name = 'tree.html'
     root_elem = None
 
     def walk_tree(self, it, obj):
@@ -201,7 +190,7 @@ class TreeView(EditingMixin, HTMLView):
             if child.rght == obj.rght - 1:
                 return max(1, obj.height)
 
-    def get_initial_context(self, oxpid=None):
+    def get_context_data(self, oxpid=None):
         if oxpid:
             roots = Object.objects.filter(oxpid__in=oxpid.split(","))
             objects = list(chain(*(root.get_descendants(include_self=True) for root in roots)))
@@ -219,14 +208,11 @@ class TreeView(EditingMixin, HTMLView):
             'root': root,
         }
 
-    def get(self, request, oxpid=None):
-        self.context.update(self.get_initial_context(oxpid))
-        return self.render()
 
-class DetailView(EditingMixin, HTMLView):
-    template_name = 'detail'
+class DetailView(EditingMixin, TemplateView):
+    template_name = 'detail.html'
 
-    def get_initial_context(self, oxpid):
+    def get_context_data(self, oxpid):
         try:
             obj = Object.objects.get(oxpid=oxpid, user__isnull=False)
         except Object.DoesNotExist:
@@ -259,13 +245,12 @@ class DetailView(EditingMixin, HTMLView):
         }
 
     def get(self, request, oxpid):
-        self.context.update(self.get_initial_context(oxpid))
         recent = request.session.get('recent', [])
         if oxpid in recent:
             recent.remove(oxpid)
         recent.insert(0, oxpid)
         request.session['recent'] = recent[:10]
-        return self.render()
+        return super().get(request, oxpid)
 
     def post(self, request, oxpid):
         self.context.update(self.get_initial_context(oxpid))
@@ -343,7 +328,7 @@ class DetailView(EditingMixin, HTMLView):
         
         self.wrangle_relations(request, oxpid, new_from)
 
-        return HttpResponseSeeOther('.')
+        return redirect('.')
     
     def wrangle_relations(self, request, oxpid, new_from):
         rw = RelationWrangler(request.user)
@@ -370,8 +355,9 @@ class DetailView(EditingMixin, HTMLView):
                 
         rw.save()
 
-class RequestView(AuthedMixin, HTMLView):
-    template_name = 'request'
+class RequestView(AuthedMixin, FormView):
+    template_name = 'request.html'
+
 
     def get_initial_context(self):
         return {
@@ -412,7 +398,8 @@ class RequestView(AuthedMixin, HTMLView):
 
         s.sendmail(sender, recipients, msg.as_string())
 
-        return HttpResponseSeeOther(reverse('core:request') + '?sent=true')
+        return redirect(reverse('core:request') + '?sent=true')
+
 
 class AutoSuggestView(EditingMixin, View):
     def get(self, request, active_type, relation_name):
@@ -430,10 +417,11 @@ class AutoSuggestView(EditingMixin, View):
 
         return HttpResponse(json.dumps(suggestions, indent=2), content_type='application/json')
 
-class CreateView(EditingMixin, HTMLView):
-    template_name = 'create'
 
-    def get_initial_context(self, oxpid=None):
+class CreateView(EditingMixin, TemplateView):
+    template_name = 'create.html'
+
+    def get_context_data(self, oxpid=None):
         if oxpid:
             parent = get_object_or_404(Object, oxpid=oxpid)
             if not parent.child_types:
@@ -485,17 +473,17 @@ class CreateView(EditingMixin, HTMLView):
             rw.add(parent.oxpid, new_oxpid, relation_name, dt_from)
             rw.save()
         
-        return HttpResponseSeeOther(reverse('core:detail', args=[new_oxpid]))
-            
-class HelpView(HTMLView):
-    template_name = 'help'
-    def get(self, request):
-        return self.render()
+        return redirect(reverse('core:detail', args=[new_oxpid]))
 
-class RevertView(EditingMixin, HTMLView):
-    template_name = 'revert'
 
-    def get_initial_context(self, oxpid):
+class HelpView(TemplateView):
+    template_name = 'help.html'
+
+
+class RevertView(EditingMixin, TemplateView):
+    template_name = 'revert.html'
+
+    def get_context_data(self, oxpid):
         obj = get_object_or_404(Object, oxpid=oxpid)
         file_obj = obj.in_file
         try:
@@ -511,20 +499,16 @@ class RevertView(EditingMixin, HTMLView):
             'done': self.request.GET.get('done') == 'true',
         }
 
-    def get(self, request, oxpid):
-        self.context.update(self.get_initial_context(oxpid))
-        return self.render()
-
     def post(self, request, oxpid):
-        self.context.update(self.get_initial_context(oxpid))
-        if not self.context['editable']:
+        context = self.get_initial_context(oxpid)
+        if not context['editable']:
             return HttpResponseBadRequest()
         obj, old, new = map(self.context.get, ['obj', 'old', 'new'])
         file_obj = obj.in_file
 
         if old is None:
             file_obj.delete()
-            return HttpResponseSeeOther(reverse('core:detail-revert', args=[oxpid]) + '?done=true')
+            return redirect(reverse('core:detail-revert', args=[oxpid]) + '?done=true')
             raise NotImplementedError
 
         for c in old:
@@ -551,9 +535,10 @@ class RevertView(EditingMixin, HTMLView):
         file_obj.save()
         obj.save()
 
-        return HttpResponseSeeOther(reverse('core:detail-revert', args=[oxpid]) + '?done=true')
+        return redirect(reverse('core:detail-revert', args=[oxpid]) + '?done=true')
 
-class LinkingYouView(EditingMixin, HTMLView):
+
+class LinkingYouView(EditingMixin, TemplateView):
     template_name = 'linking-you.html'
 
     def get(self, request):
@@ -577,7 +562,7 @@ class LinkingYouView(EditingMixin, HTMLView):
         if request.GET.get('termSort') == 'count':
             terms.sort(key=lambda t: -t['count'])
             for o in objects:
-                o.seen_terms.sort(key=lambda (t, _): -t['count'])
+                o.seen_terms.sort(key=lambda t: -t[0]['count'])
         if request.GET.get('entitySort') == 'count':
             objects = list(objects)
             objects.sort(key=lambda o: -o.term_count)

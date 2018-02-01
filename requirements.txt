@@ -1,5 +1,4 @@
 Django>=1.7
-django-conneg
 django-mptt
 lxml
 psycopg2

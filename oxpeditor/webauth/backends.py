@@ -1,24 +1,29 @@
-import ldap, ldap.sasl
-import os
+import ldap3
 import re
 
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 
+
 class WebauthBackend(object):
+    def get_ldap_connection(self):
+        return ldap3.Connection(self.url,
+                                user=getattr(settings, 'LDAP_USER', None),
+                                auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND,
+                                authentication=ldap3.SASL,
+                                sasl_mechanism='GSSAPI',
+                                sasl_credentials=(True,))
+
     def authenticate(self, username):
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
             user = User.objects.create_user(username)
-        
-        auth = ldap.sasl.gssapi('')
-        oakldap = ldap.initialize('ldap://ldap.oak.ox.ac.uk:389')
-        oakldap.start_tls_s()
-        oakldap.sasl_interactive_bind_s('', auth)
 
-        results = oakldap.search_s('ou=people,dc=oak,dc=ox,dc=ac,dc=uk',
-                                   ldap.SCOPE_SUBTREE,
+        oak_ldap = self.get_ldap_connection()
+
+        results = oak_ldap.search('ou=people,dc=oak,dc=ox,dc=ac,dc=uk',
+                                   ldap3.SCOPE_SUBTREE,
                                    '(oakPrincipal=krbPrincipalName=%s@OX.AC.UK,cn=OX.AC.UK,cn=KerberosRealms,dc=oak,dc=ox,dc=ac,dc=uk)' % username)
 
         if not results:

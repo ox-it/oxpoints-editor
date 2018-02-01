@@ -1,18 +1,18 @@
 import os
-from django.conf.urls import *
-from django.conf import settings
+from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.urls import path
 
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = [
     # Example:
-    (r'^', include('oxpeditor.core.urls', namespace='core')),
-    (r'^', include('oxpeditor.linkcheck.urls', namespace='linkcheck')),
-    (r'^webauth/', include('oxpeditor.webauth.urls', namespace='webauth')),
+    url(r'^', include('oxpeditor.core.urls')),
+    url(r'^', include('oxpeditor.linkcheck.urls')),
+    url(r'^webauth/', include('oxpeditor.webauth.urls')),
 
-    (r'^admin/', include(admin.site.urls)),
-)
+    path('admin/', admin.site.urls),
+]
 
 urlpatterns += staticfiles_urlpatterns()

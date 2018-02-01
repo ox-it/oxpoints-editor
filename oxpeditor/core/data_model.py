@@ -17,7 +17,7 @@ class WithRegistry(object):
         WithRegistry._registry[(type(self), name)] = self
         setattr(type(self), name, self)
         setattr(self, 'name', name)
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             setattr(self, key, value)
     
     @classmethod
