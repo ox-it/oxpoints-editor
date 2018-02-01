@@ -1,5 +1,4 @@
 # Django settings for oxpeditor project.
-import ConfigParser
 import os
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
@@ -123,3 +122,5 @@ DEFAULT_FROM_EMAIL = NOTIFY_ADDRESS
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 36000
 
+import logging
+logging.basicConfig(level=logging.INFO)
