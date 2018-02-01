@@ -10,7 +10,7 @@ class LinkCheckConfig(apps.AppConfig):
 
         post_save.connect(self.update_links, sender=File)
 
-    def update_links(instance, **kwargs):
+    def update_links(self, instance, **kwargs):
         from oxpeditor.linkcheck.management.commands.checklinks import Command
         cmd = Command()
         cmd.gather_links_for_file(instance)

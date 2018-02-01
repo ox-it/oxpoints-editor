@@ -1,7 +1,7 @@
 import datetime
 import logging
 import ssl
-import urllib2
+import urllib.request
 from optparse import make_option
 
 from lxml import etree
@@ -17,25 +17,22 @@ NS = {'tei': 'http://www.tei-c.org/ns/1.0'}
 logger = logging.getLogger('oxpeditor.linkchecker')
 
 class Command(BaseCommand):
-    option_list = BaseCommand.option_list + (
-        make_option('--gather',
-            action='store_true',
-            dest='gather',
-            default=False,
-            help='Gather links before validating'),
-        make_option('--force',
-            action='store_true',
-            dest='force',
-            default=False,
-            help='Force-check all links'),
-        )
+    def add_arguments(self, parser):
+        parser.add_argument('--gather',
+                            action='store_true',
+                            dest='gather',
+                            default=False,
+                            help='Gather links before validating')
+        parser.add_argument('--force',
+                            action='store_true',
+                            dest='force',
+                            default=False,
+                            help='Force-check all links')
 
     def handle(self, *args, **options):
         if options['gather']:
             self.gather_links()
         self.validate_links(force=options['force'])
-
-
 
     def gather_links(self):
         for file in File.objects.all():
@@ -46,7 +43,10 @@ class Command(BaseCommand):
         date_filter(file_xml)
         for xml in file_xml.xpath("descendant-or-self::*[@oxpID]"):
             oxpid = xml.attrib['oxpID']
-            object = Object.objects.get(oxpid=oxpid)
+            try:
+                object = Object.objects.get(oxpid=oxpid)
+            except Object.DoesNotExist:
+                continue
 
             traits = xml.xpath('.//tei:trait[@type and tei:desc/tei:ptr/@target]', namespaces=NS)
             traits = [t for t in traits if t.xpath('ancestor::*[@oxpID]')[-1].attrib['oxpID'] == oxpid]
@@ -80,15 +80,15 @@ class Command(BaseCommand):
             if not force and (link.state != 'new' and link.last_checked and link.last_checked > check_threshold):
                 continue
 
-            request = urllib2.Request(target,
+            request = urllib.request.Request(target,
                                       headers={'User-Agent': 'oxpoints-link-checker (oxpoints@it.ox.ac.uk)'})
             try:
-                response = urllib2.urlopen(request)
-            except urllib2.HTTPError as e:
+                response = urllib.request.urlopen(request)
+            except urllib.request.HTTPError as e:
                 link.status_code = e.code
                 link.redirects_to = ''
                 link.problem = 'error'
-            except urllib2.URLError:
+            except urllib.request.URLError:
                 link.status_code = None
                 link.redirects_to = ''
                 link.problem = 'url'
@@ -108,8 +108,8 @@ class Command(BaseCommand):
                 link.state = 'ok'
             else:
                 if initial_problem != link.problem or \
-                    initial_redirects_to != link.redirects_to or \
-                    initial_status_code != link.status_code:
+                                initial_redirects_to != link.redirects_to or \
+                                initial_status_code != link.status_code:
                     link.state = 'broken'
 
             logger.info('%s %s %3s %s',
