@@ -6,6 +6,10 @@ from django.contrib.auth.models import User, Group
 
 
 class WebauthBackend(object):
+    def __init__(self):
+        self.url = getattr(settings, 'LDAP_ENDPOINT',
+                'ldaps://ldap.oak.ox.ac.uk')
+
     def get_ldap_connection(self):
         return ldap3.Connection(self.url,
                                 user=getattr(settings, 'LDAP_USER', None),
