@@ -4,3 +4,4 @@ lxml
 psycopg2
 python3-ldap
 rdflib
+gssapi
