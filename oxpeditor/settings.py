@@ -3,8 +3,9 @@ import os
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
 
-DEBUG = os.environ.get('DEBUG') == 'true'
+DEBUG = os.environ.get('DJANGO_DEBUG') in ('true', 'on')
 TEMPLATE_DEBUG = DEBUG
+print(DEBUG)
 
 FROM_ADDRESS = os.environ['FROM_ADDRESS']
 NOTIFY_ADDRESS = os.environ['NOTIFY_ADDRESS']
@@ -20,7 +21,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ['DATABASE_NAME'],
+        'NAME': os.environ.get('DATABASE_NAME', 'oxpeditor'),
    },
 }
 
@@ -59,7 +60,7 @@ except KeyError:
     with open(os.environ['SECRET_KEY_FILE']) as f:
         SECRET_KEY = f.read()
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -73,16 +74,6 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
 )
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.request",
-    "django.core.context_processors.static",
-    "django.contrib.auth.context_processors.auth",
-    "oxpeditor.core.context_processors.core",
-)
-
 
 INSTALLED_APPS = (
     'django.contrib.admin',
@@ -135,6 +126,11 @@ TEMPLATES = [
             'context_processors': (
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.static',
+                "django.template.context_processors.debug",
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.request",
+                "oxpeditor.core.context_processors.core",
+
             ),
         },
     },

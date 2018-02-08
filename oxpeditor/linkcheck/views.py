@@ -7,17 +7,16 @@ from oxpeditor.linkcheck.models import Link, STATE_CHOICES, PROBLEM_CHOICES
 class LinkView(EditingMixin, TemplateView):
     template_name = 'links.html'
 
-    def get(self, request):
+    def get_context_data(self, **kwargs):
         links = Link.objects.all().order_by('object__title', 'type').select_related('object')
 
-        if 'state' in request.GET:
-            links = links.filter(state__in=request.GET.getlist('state'))
-        if 'problem' in request.GET:
-            links = links.filter(problem__in=request.GET.getlist('problem'))
+        if 'state' in self.request.GET:
+            links = links.filter(state__in=self.request.GET.getlist('state'))
+        if 'problem' in self.request.GET:
+            links = links.filter(problem__in=self.request.GET.getlist('problem'))
 
-        self.context.update({
+        return {
             'links': links,
             'state_choices': STATE_CHOICES,
             'problem_choices': PROBLEM_CHOICES,
-        })
-        return self.render()
+        }

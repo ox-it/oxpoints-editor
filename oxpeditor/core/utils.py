@@ -59,5 +59,5 @@ def find_new_oxpids():
 
 def find_new_oxpid():
     with closing(find_new_oxpids()) as g:
-        return g.next()
+        return next(g)
 

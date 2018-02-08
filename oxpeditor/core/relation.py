@@ -126,7 +126,7 @@ class RelationWrangler(object):
         return file_obj
 
     def save(self):
-        for pk, xml in self.files.iteritems():
+        for pk, xml in self.files.items():
             file_obj = self.files.files[pk]
             
             xml = etree.tostring(xml, pretty_print=True).decode()
