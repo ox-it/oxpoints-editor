@@ -113,6 +113,8 @@ DEFAULT_FROM_EMAIL = NOTIFY_ADDRESS
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 36000
 
+LDAP_USER = os.environ['LDAP_USER']
+
 import logging
 logging.basicConfig(level=logging.INFO)
 
