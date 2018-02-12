@@ -85,17 +85,17 @@ INSTALLED_APPS = (
     'mptt',
     'oxpeditor.core',
     'oxpeditor.linkcheck',
-    'oxpeditor.webauth',
+    'oxpeditor.shibboleth',
     # Uncomment the next line to enable the admin:
 )
 
 REPO_PATH = os.environ['OXPOINTS_DATA_CHECKOUT_DIR']
 SERVER_NAME = 'oxpoints.oucs.ox.ac.uk'
 
-LOGIN_URL = PREFIX + 'webauth/login/'
+LOGIN_URL = PREFIX + 'login/'
 
 AUTHENTICATION_BACKENDS = (
-    'oxpeditor.webauth.backends.WebauthBackend',
+    'oxpeditor.shibboleth.backends.ShibbolethBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -112,8 +112,6 @@ DEFAULT_FROM_EMAIL = NOTIFY_ADDRESS
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 36000
-
-LDAP_USER = os.environ['LDAP_USER']
 
 import logging
 logging.basicConfig(level=logging.INFO)

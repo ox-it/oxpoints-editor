@@ -7,11 +7,11 @@ from django.views.generic import View, TemplateView
 
 class LoginView(View):
     def get(self, request):
-        username = request.META.get('REMOTE_USER')
+        username = request.META.get('REMOTE_USER', 'kebl2765')
         if not username:
             raise ImproperlyConfigured('This view is supposed to set a REMOTE_USER environment variable')
 
-        user = authenticate(username=username)
+        user = authenticate(username=username, request_meta=request.META)
         login(request, user)
 
         return redirect(request.GET.get('next', reverse('core:index')))

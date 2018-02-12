@@ -2,7 +2,7 @@ from django.urls import path
 
 from . import views
 
-app_name = 'webauth'
+app_name = 'shibboleth'
 
 urlpatterns = [
     path('login/', views.LoginView.as_view(), name='login'),
