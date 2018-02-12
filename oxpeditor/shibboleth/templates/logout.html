@@ -2,10 +2,11 @@
 
 {% block body %}
 
-<h1>Logged out</h1>
+    <h1>Logged out</h1>
 
-<p>You may still be logged in to WebAuth. Either close your browser or <a href="https://webauth.ox.ac.uk/logout">log out explicitly</a>.</p>
+    <p>You may still be logged in to Shibboleth. Either close your browser or <a href="/Shibboleth.sso/Logout">log out
+        explicitly</a>.</p>
 
-<p>If you wish to continue editing OxPoints, you may <a href="{% url "shibboleth:login" %}">log in again</a>.</p>
+    <p>If you wish to continue editing OxPoints, you may <a href="{% url "shibboleth:login" %}">log in again</a>.</p>
 
 {% endblock %}
