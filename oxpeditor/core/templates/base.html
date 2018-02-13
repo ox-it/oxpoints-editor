@@ -16,9 +16,9 @@
       <small style="margin:0.2em 0;">
 {% if user.is_authenticated %}
         Logged in as <em>{{ user.first_name }} {{ user.last_name }}</em> ({{ user.username }}).
-        <a href="{% url "shibboleth:logout" %}">Log out</a>
+        <a href="{% url "logout" %}">Log out</a>
 {% else %}
-        <a href="{% url "shibboleth:login" %}">Log in</a>
+        <a href="{% url "login" %}">Log in</a>
 {% endif %}
       </small>
 {% if perms.core.change_object %}

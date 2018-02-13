@@ -64,16 +64,11 @@ MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.PersistentRemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 ROOT_URLCONF = 'oxpeditor.urls'
-
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
 
 INSTALLED_APPS = (
     'django.contrib.admin',
@@ -85,17 +80,16 @@ INSTALLED_APPS = (
     'mptt',
     'oxpeditor.core',
     'oxpeditor.linkcheck',
-    'oxpeditor.shibboleth',
-    # Uncomment the next line to enable the admin:
 )
 
 REPO_PATH = os.environ['OXPOINTS_DATA_CHECKOUT_DIR']
 SERVER_NAME = 'oxpoints.oucs.ox.ac.uk'
 
 LOGIN_URL = PREFIX + 'login/'
+LOGIN_REDIRECT_URL = PREFIX
 
 AUTHENTICATION_BACKENDS = (
-    'oxpeditor.shibboleth.backends.ShibbolethBackend',
+    'djoxshib.backends.ShibbolethBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 

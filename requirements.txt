@@ -4,3 +4,4 @@ lxml
 psycopg2
 rdflib
 gssapi
+-e git://github.com/ox-it/oxford-django-shibboleth#egg=oxford-django-shibboleth
