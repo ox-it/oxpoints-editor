@@ -24,7 +24,7 @@ class RelationWrangler(object):
     def norm(self, obj):
         if isinstance(obj, Object):
             return obj
-        elif isinstance(obj, basestring):
+        elif isinstance(obj, str):
             return Object.objects.get(oxpid=obj)
 
     def add(self, active, passive, relation_type, dt_from=None, dt_to=None):
