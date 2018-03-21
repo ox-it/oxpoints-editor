@@ -82,7 +82,7 @@ class CommitView(EditingMixin, TemplateView):
             successful = perform_commit(request.user, context['form'].cleaned_data['message'])
         unsuccessful = to_commit - successful
 
-        return redirect('.?%s' % urllib.urlencode({
+        return redirect('.?%s' % urllib.parse.urlencode({
             'done': 'true',
             'successful': ','.join(chain(*(edited[f] for f in successful))),
             'unsuccessful': ','.join(chain(*(edited[f] for f in unsuccessful))),
