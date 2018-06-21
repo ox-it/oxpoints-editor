@@ -254,9 +254,13 @@
     <type name="Site" root_element="place">
       <label>site</label>
       <relations>
-        <relation name="contains" passive="Room Space Site Building OpenSpace Carpark" child="true"/>
+        <relation name="contains" passive="Room Space Site Building OpenSpace Carpark Gate" child="true"/>
         <relation-set name="reception"/>
       </relations>
+    </type>
+
+    <type name="Gate" root_element="place">
+      <label>gate</label>
     </type>
     
     <type name="Building" root_element="place">
