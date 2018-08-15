@@ -494,8 +494,24 @@ class RevertView(EditingMixin, TemplateView):
             'done': self.request.GET.get('done') == 'true',
         }
 
+    def get_initial_context(self, oxpid):
+        obj = get_object_or_404(Object, oxpid=oxpid)
+        file_obj = obj.in_file
+        try:
+            old = etree.fromstring(file_obj.initial_xml).xpath("descendant-or-self::*[@oxpID='%s']" % oxpid)[0]
+        except (etree.XMLSyntaxError, IndexError):
+            old = None
+        new = etree.fromstring(file_obj.xml).xpath("descendant-or-self::*[@oxpID='%s']" % oxpid)[0]
+        return {
+            'obj': obj,
+            'old': old,
+            'new': new,
+            'editable': not (obj.user and obj.user != self.request.user),
+            'done': self.request.GET.get('done') == 'true',
+        }
+    
     def post(self, request, oxpid):
-        context = self.get_context_data(oxpid)
+        context = self.get_initial_context(oxpid)
         if not context['editable']:
             return HttpResponseBadRequest()
         obj, old, new = map(context.get, ['obj', 'old', 'new'])
