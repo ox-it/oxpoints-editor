@@ -495,7 +495,7 @@ class RevertView(EditingMixin, TemplateView):
         }
 
     def post(self, request, oxpid):
-        context = self.get_initial_context(oxpid)
+        context = self.get_context_data(oxpid)
         if not context['editable']:
             return HttpResponseBadRequest()
         obj, old, new = map(context.get, ['obj', 'old', 'new'])
