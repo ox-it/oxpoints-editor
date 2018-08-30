@@ -145,7 +145,7 @@ UPDATE_TYPE_CHOICES = (
 
 class UpdateTypeForm(forms.Form):
     update_type = forms.ChoiceField(choices=UPDATE_TYPE_CHOICES, widget=forms.RadioSelect)
-    when = forms.DateField(required=False)
+    when = forms.DateField(required=False, input_formats = ['%Y-%m-%d'])
 
     def clean(self):
         cleaned_data = self.cleaned_data
