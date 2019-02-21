@@ -43,7 +43,7 @@ class AuthedMixin(object):
 class EditingMixin(object):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return redirect('%s?%s' % (settings.LOGIN_URL, urllib.urlencode({'next':request.get_full_path()})))
+            return redirect('%s?%s' % (settings.LOGIN_URL, urllib.parse.urlencode({'next':request.get_full_path()})))
         elif not request.user.has_perm('core.change_object'):
             response = self.render(request, {}, 'insufficient-privileges')
             response.status_code = 403
